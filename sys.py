@@ -1,12 +1,13 @@
 class Stock(object):
-    def __init__(self, name, initial=0):
+    def __init__(self, name, initial=0, show=True):
         self.name = name
         self.initial = initial
+        self.show = show
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)
 
-
+    
 class Flow(object):
     def __init__(self, source, destination, rate):
         self.source = source
@@ -64,6 +65,11 @@ class Model(object):
         self.stocks = []
         self.flows = []
 
+    def infinite_stock(self, name):
+        s = Stock(name, float("+inf"), show=False)
+        self.stocks.append(s)
+        return s        
+
     def stock(self, *args, **kwargs):
         s = Stock(*args, **kwargs)
         self.stocks.append(s)
@@ -81,14 +87,16 @@ class Model(object):
             s.advance()
             snapshots.append(s.snapshot())
 
+        
+        col_stocks = [s for s in self.stocks if s.show]    
         header = "\t"
-        header += "\t".join([s.name for s in self.stocks])
-        col_size = [len(s.name) for s in self.stocks]
+        header += "\t".join([s.name for s in col_stocks])
+        col_size = [len(s.name) for s in col_stocks]
 
         print(header)
         for i, snapshot in enumerate(snapshots):
             row = "%s" % i
-            for j, col in enumerate(self.stocks):
+            for j, col in enumerate(col_stocks):
                 row += "\t" + str(snapshot[col.name]).ljust(col_size[j])
             print(row)
 
@@ -96,7 +104,7 @@ class Model(object):
 
 def main():
     m = Model("Hiring funnel")
-    candidates = m.stock("Candidates", float("inf"))
+    candidates = m.infinite_stock("Candidates")
     screens = m.stock("Phone Screen")
     onsites = m.stock("Onsites")
 
