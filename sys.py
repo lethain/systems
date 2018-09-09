@@ -14,7 +14,7 @@ class Flow(object):
         self.rate = rate
 
     def change(self, source_state, dest_state):
-        return 0
+        return self.rate.calculate(source_state, dest_state)
 
     def __repr__(self):
         return "%s(%s to %s at %s)" % (self.__class__.__name__, self.source, self.destination, self.rate)
@@ -23,6 +23,11 @@ class Flow(object):
 class Rate(object):
     def __init__(self, velocity):
         self.velocity = velocity
+
+    def calculate(self, src, dest):
+        if src - self.velocity >= 0:
+            return min(self.velocity, src - self.velocity)
+        return 0
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.velocity)
@@ -38,12 +43,12 @@ class State(object):
     def advance(self):
         deferred = []
         
-        for flow in self.flows:
+        for flow in self.model.flows:
             source_state = self.state[flow.source.name]
             destination_state = self.state[flow.destination.name]
             change = flow.change(source_state, destination_state)
             self.state[flow.source.name] -= change
-            deferred.append(flow.destination.name, change)
+            deferred.append((flow.destination.name, change))
 
         for dest, change in deferred:
             self.state[dest] += change
@@ -91,7 +96,7 @@ class Model(object):
 
 def main():
     m = Model("Hiring funnel")
-    candidates = m.stock("Candidates", 10)
+    candidates = m.stock("Candidates", float("inf"))
     screens = m.stock("Phone Screen")
     onsites = m.stock("Onsites")
 
