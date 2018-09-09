@@ -1,3 +1,6 @@
+import math
+
+
 class Stock(object):
     def __init__(self, name, initial=0, show=True):
         self.name = name
@@ -22,16 +25,21 @@ class Flow(object):
 
 
 class Rate(object):
-    def __init__(self, velocity):
-        self.velocity = velocity
+    def __init__(self, rate):
+        self.rate = rate
 
     def calculate(self, src, dest):
-        if src - self.velocity >= 0:
-            return min(self.velocity, src - self.velocity)
+        if src - self.rate >= 0:
+            return min(self.rate, src - self.rate)
         return 0
 
     def __repr__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.velocity)
+        return "%s(%s)" % (self.__class__.__name__, self.rate)
+
+    
+class Conversion(Rate):
+    def calculate(self, src, dest):
+        return math.floor(src * self.rate)
 
 
 class State(object):
@@ -80,7 +88,7 @@ class Model(object):
         self.flows.append(f)
         return f
 
-    def run(self, rounds=10):
+    def run(self, rounds=10, sep='\t', pad=True):
         s = State(self)
         snapshots = [s.snapshot()]
         for i in range(rounds):
@@ -89,17 +97,20 @@ class Model(object):
 
         
         col_stocks = [s for s in self.stocks if s.show]    
-        header = "\t"
-        header += "\t".join([s.name for s in col_stocks])
+        header = sep[:]
+        header += sep.join([s.name for s in col_stocks])
         col_size = [len(s.name) for s in col_stocks]
 
         print(header)
         for i, snapshot in enumerate(snapshots):
             row = "%s" % i
             for j, col in enumerate(col_stocks):
-                row += "\t" + str(snapshot[col.name]).ljust(col_size[j])
+                num = str(snapshot[col.name])
+                if pad:
+                    num = num.ljust(col_size[j])
+                
+                row += sep[:] + num
             print(row)
-
 
 
 def main():
@@ -107,13 +118,18 @@ def main():
     candidates = m.infinite_stock("Candidates")
     screens = m.stock("Phone Screen")
     onsites = m.stock("Onsites")
+    offers = m.stock("Offers")
+    hires= m.stock("Hires")
 
     r = Rate(1)
     m.flow(candidates, screens, Rate(2))
-    m.flow(screens, onsites, Rate(1))
+    m.flow(screens, onsites, Conversion(0.5))
+    m.flow(onsites, offers, Conversion(0.5))
+    m.flow(offers, hires, Conversion(0.7))
 
     m.run()
-
+    # CSV
+    # m.run(sep=',', pad=False)
 
 
 if __name__ == "__main__":
