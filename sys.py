@@ -13,9 +13,12 @@ class Flow(object):
         self.destination = destination
         self.rate = rate
 
+    def change(self, source_state, dest_state):
+        return 0
+
     def __repr__(self):
         return "%s(%s to %s at %s)" % (self.__class__.__name__, self.source, self.destination, self.rate)
-        
+
 
 class Rate(object):
     def __init__(self, velocity):
@@ -27,23 +30,26 @@ class Rate(object):
 
 class State(object):
     def __init__(self, model):
-        self.round = 0
         self.model = model
         self.state = {}
         for stock in self.model.stocks:
             self.state[stock.name] = stock.initial
 
     def advance(self):
-        self.round += 1
+        deferred = []
+        
+        for flow in self.flows:
+            source_state = self.state[flow.source.name]
+            destination_state = self.state[flow.destination.name]
+            change = flow.change(source_state, destination_state)
+            self.state[flow.source.name] -= change
+            deferred.append(flow.destination.name, change)
 
+        for dest, change in deferred:
+            self.state[dest] += change
 
     def snapshot(self):
         return self.state.copy()
-
-    def __str__(self):
-        s = "%s\t" % self.round
-        stocks = ["%s(%s)" % (x.name, self.state[x.name]) for x in  self.model.stocks]
-        return s + ", ".join(stocks)
 
 
 class Model(object):
@@ -73,16 +79,16 @@ class Model(object):
         header = "\t"
         header += "\t".join([s.name for s in self.stocks])
         col_size = [len(s.name) for s in self.stocks]
-        
+
         print(header)
         for i, snapshot in enumerate(snapshots):
             row = "%s" % i
             for j, col in enumerate(self.stocks):
                 row += "\t" + str(snapshot[col.name]).ljust(col_size[j])
             print(row)
-            
-            
-            
+
+
+
 def main():
     m = Model("Hiring funnel")
     candidates = m.stock("Candidates", 10)
@@ -94,8 +100,8 @@ def main():
     m.flow(screens, onsites, Rate(1))
 
     m.run()
-    
 
-        
+
+
 if __name__ == "__main__":
     main()
