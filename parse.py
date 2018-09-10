@@ -73,12 +73,15 @@ def parse(txt):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('-r', '--rounds', type=int, help="number of rounds to run evaluation", default=10)
+    p.add_argument('--csv', action='store_true', default=False)
     args = p.parse_args()
-
     
     txt = sys.stdin.read()
     model = parse(txt)
-    model.run(rounds=args.rounds)
+    if args.csv:
+        model.run(rounds=args.rounds, sep=",", pad=False)
+    else:
+        model.run(rounds=args.rounds)
     
 
 if __name__ == "__main__":
