@@ -73,8 +73,10 @@ class Model(object):
         self.stocks = []
         self.flows = []
 
-    def stock_exists(self, name):
-        return any([x.name == name for x in self.stocks])
+    def get_stock(self, name):
+        for stock in self.stocks:
+            if stock.name == name:
+                return stock
 
     def infinite_stock(self, name):
         s = Stock(name, float("+inf"), show=False)

@@ -9,10 +9,23 @@ def parse_stock(model, name):
         name = name[1:-1]
         infinite = True
 
-    if not model.stock_exists(name):
-        if infinite:
-            return model.infinite_stock(name)
-        return model.stock(name)
+    exists = model.get_stock(name)
+    if exists:
+        return exists
+    
+    if infinite:
+        return model.infinite_stock(name)
+    return model.stock(name)
+
+    
+def parse_flow(model, src, dest, txt):
+    txt = txt.strip()
+    if "." in txt:
+        rate = systems.Conversion(float(txt))
+    else:
+        rate = systems.Rate(int(txt))
+
+    return model.flow(src, dest, rate)
 
 
 def parse(txt):
@@ -23,7 +36,7 @@ def parse(txt):
     flows = []
     
     for line in txt.split('\n'):
-        if len(line.strip()) == 0:
+        if line.strip() == "":
             continue
         
         source_name, rest  = line.split(">")
@@ -31,10 +44,8 @@ def parse(txt):
 
         source = parse_stock(m, source_name)
         dest = parse_stock(m, dest_name)
-        
-        print([source, dest, args])
 
-
+        parse_flow(m, source, dest, args)
     
     return m
 
