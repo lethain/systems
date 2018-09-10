@@ -1,0 +1,7 @@
+[Candidates] > PhoneScreens @ 2
+PhoneScreens > Onsites      @ 0.5
+Onsites      > Offers       @ 0.5
+Offers       > Hires        @ 0.5
+Hires        > Employees    @ 0.5
+Employees    > Departures   @ 0.1
+Departures   > [Departed]   @ 1.0
