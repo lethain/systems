@@ -39,11 +39,19 @@ class Rate(object):
 
     
 class Conversion(Rate):
+    "Converts a stock into another at a discount rate."
     def calculate(self, src, dest):
         change = math.floor(src * self.rate)
         if change == 0:
             return 0, 0
         return src, math.floor(src * self.rate)
+
+
+class Leak(Rate):
+    "A stock leaks a percentage of its value into another."
+    def calculate(self, src, dest):
+        change = math.floor(src * self.rate)
+        return change, change
 
 
 class State(object):

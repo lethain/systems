@@ -21,12 +21,28 @@ def parse_stock(model, name):
 
     
 def parse_flow(model, src, dest, txt):
-    txt = txt.strip()
-    if "." in txt:
-        rate = systems.Conversion(float(txt))
-    else:
-        rate = systems.Rate(int(txt))
+    parts = txt.split(",")
+    val = parts[0].strip()
 
+    # guess class by value
+    if "." in val:
+        rate_class = systems.Conversion
+        val = float(val)
+    else:
+        rate_class = systems.Rate
+        val = int(val)
+
+    # use specified class if any
+    if len(parts) > 1:
+        class_str = parts[1].strip()
+        if class_str == "leak":
+            rate_class = systems.Leak
+        elif class_str == "conversion":
+            rate_class = systems.Conversion
+        elif class_str == "rate":
+            rate_class = systems.Rate
+
+    rate = rate_class(val)
     return model.flow(src, dest, rate)
 
 
@@ -38,7 +54,9 @@ def parse(txt):
     flows = []
     
     for line in txt.split('\n'):
-        if line.strip() == "":
+        line = line.strip()
+        # ignore comments
+        if line == "" or line.startswith("#"):
             continue
         
         source_name, rest  = line.split(">")
