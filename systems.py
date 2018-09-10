@@ -30,8 +30,9 @@ class Rate(object):
 
     def calculate(self, src, dest):
         if src - self.rate >= 0:
-            return min(self.rate, src - self.rate)
-        return 0
+            change = min(self.rate, src - self.rate)
+            return change, change
+        return 0, 0
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.rate)
@@ -39,7 +40,10 @@ class Rate(object):
     
 class Conversion(Rate):
     def calculate(self, src, dest):
-        return math.floor(src * self.rate)
+        change = math.floor(src * self.rate)
+        if change == 0:
+            return 0, 0
+        return src, math.floor(src * self.rate)
 
 
 class State(object):
@@ -55,9 +59,9 @@ class State(object):
         for flow in self.model.flows:
             source_state = self.state[flow.source.name]
             destination_state = self.state[flow.destination.name]
-            change = flow.change(source_state, destination_state)
-            self.state[flow.source.name] -= change
-            deferred.append((flow.destination.name, change))
+            rem_change, add_change = flow.change(source_state, destination_state)
+            self.state[flow.source.name] -= rem_change
+            deferred.append((flow.destination.name, add_change))
 
         for dest, change in deferred:
             self.state[dest] += change
