@@ -4,7 +4,7 @@ import unittest
 import systems
 import parse
 
-from exceptions import MissingDelimiter
+from exceptions import MissingDelimiter, UnknownFlowType
 
 
 EXAMPLE_FULL = """
@@ -41,9 +41,13 @@ class TestParse(unittest.TestCase):
         txt = "[a] > b"
         with self.assertRaises(MissingDelimiter) as md:
             parse.parse(txt)
-        self.assertEqual('@', md.exception.delimiter)            
-        
+        self.assertEqual('@', md.exception.delimiter)
 
+    def test_parse_unknown_flow_type(self):
+        txt = "[a] > b @ 25, fake"
+        with self.assertRaises(UnknownFlowType) as uft:
+            parse.parse(txt)
+        self.assertEqual('fake', uft.exception.flow_type)
         
         
 
