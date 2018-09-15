@@ -6,19 +6,36 @@ from exceptions import ParseException, ParseError, MissingDelimiter, UnknownFlow
 
 
 def parse_stock(model, name):
+    """
+    Parse stock name and initial value from text.
+
+    Examples:
+
+    - a is a stock named "a" with an intial value of 0.
+    - [a] is an infinite stock named "a"
+    - a(50) is a stock named "a" with an initial value of 50.
+    """
     name = name.strip()
     infinite = False
     if name.startswith('[') and name.endswith(']'):
         name = name[1:-1]
         infinite = True
 
+    value = 0
+    if name.endswith(')'):
+        start_pos = name.rfind('(')
+        if start_pos > 0:
+            value_str = name[start_pos+1:-1]
+            name = name[:start_pos]
+            value = int(value_str)
+        
     exists = model.get_stock(name)
     if exists:
         return exists
 
     if infinite:
         return model.infinite_stock(name)
-    return model.stock(name)
+    return model.stock(name, value)
 
 
 def parse_flow(model, src, dest, txt):

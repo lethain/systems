@@ -65,7 +65,9 @@ class TestParseStock(unittest.TestCase):
             ("test this", "test this", 0),
             ("  test ", "test", 0),
             (" test", "test", 0),
-            ("test ", "test", 0),
+            ("test(0) ", "test", 0),
+            ("test(1) ", "test", 1),
+            ("test(200) ", "test", 200),
         ]
         for txt, name, val in opts:
             m = systems.Model("TestParseStock")
