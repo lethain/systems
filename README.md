@@ -23,7 +23,7 @@ for a rapidly growing company, you could do so via:
      Employees    > Departures   @ 0.1, leak
      Departures   > [Departed]   @ 1.0
 
-Then you could run the simulation for 3 rounds:
+Then you could run the simulation for 15 rounds:
 
     > cat hiring.txt | python3 parse.py -r15
             PhoneScreens    Onsites Offers  Hires   Employees       Departures
@@ -54,3 +54,10 @@ You can also get the output as CSV:
     2,25,12,0,0,0,0
 
 Which you could... load into a spreadsheet or something to graph!
+
+## Links
+
+If you want something a bit more sophisticated, you might also want to
+include links between a flow and a stock, for example you might want
+to model the number of recruiters and use that to influence the phone
+screen rate instead of fixing it at a constant value.

@@ -1,0 +1,17 @@
+# A more sophisticated version of hiring.txt,
+# which includes links between stocks and flows,
+# such that the number of recruiters can be used
+# as an input
+
+# use (10) to specify initial value of 10
+# use (10, 15) to specify initial value of 10, and max value of 15
+[PossibleRecruiters] > Recruiters(10, 15) @ 1
+
+# you can reference another stock's value in a flow
+[Candidates] > PhoneScreens @ Recruiters * 3
+PhoneScreens > Onsites      @ 0.5
+Onsites      > Offers       @ 0.5
+Offers       > Hires        @ 0.5
+Hires        > Employees    @ 1.0
+Employees    > Departures   @ 0.1, leak
+Departures   > [Departed]   @ 1.0
