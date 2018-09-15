@@ -14,12 +14,12 @@ def parse_stock(model, name):
     exists = model.get_stock(name)
     if exists:
         return exists
-    
+
     if infinite:
         return model.infinite_stock(name)
     return model.stock(name)
 
-    
+
 def parse_flow(model, src, dest, txt):
     parts = txt.split(",")
     val = parts[0].strip()
@@ -50,15 +50,15 @@ def parse(txt):
     m = systems.Model("Parsed")
 
     stocks = []
-    by_name = {}    
+    by_name = {}
     flows = []
-    
+
     for line in txt.split('\n'):
         line = line.strip()
         # ignore comments
         if line == "" or line.startswith("#"):
             continue
-        
+
         source_name, rest  = line.split(">")
         dest_name, args = rest.split("@")
 
@@ -66,7 +66,7 @@ def parse(txt):
         dest = parse_stock(m, dest_name)
 
         parse_flow(m, source, dest, args)
-    
+
     return m
 
 
@@ -75,14 +75,14 @@ def main():
     p.add_argument('-r', '--rounds', type=int, help="number of rounds to run evaluation", default=10)
     p.add_argument('--csv', action='store_true', default=False)
     args = p.parse_args()
-    
+
     txt = sys.stdin.read()
     model = parse(txt)
     if args.csv:
         model.run(rounds=args.rounds, sep=",", pad=False)
     else:
         model.run(rounds=args.rounds)
-    
+
 
 if __name__ == "__main__":
     main()
