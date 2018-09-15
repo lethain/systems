@@ -16,6 +16,13 @@ class ParseError(ParseException):
         return "line %s could not be parsed: \"%s\"" % (self.line_number, self.line)
 
 
+class NoFlowType(ParseError):
+    "No flow type known."
+    def __init__(self):
+        # requires flow control to fill in these values later
+        super().__init__("", 0)
+
+
 class UnknownFlowType(ParseError):
     "Specified flow type is unknown."
     def __init__(self, flow_type, line="", line_number=0):
