@@ -6,11 +6,23 @@ class ParseException(Exception):
     pass
 
 
-class MissingDelimiter(ParseException):
-    "Line is missing a delimiter."
-    def __init__(self, delimiter, line):
-        self.delimiter = delimiter
+class ParseError(ParseException):
+    "Most generic parse error."
+    def __init__(self, line, line_number):
         self.line = line
+        self.line_number = line_number
+        
+
+    def __str__(self):
+        return "line %s could not be parsed: \"%s\"" % (self.line_number, self.line)        
+
+
+class MissingDelimiter(ParseError):
+    "Line is missing a delimiter."
+    def __init__(self, line, line_number, delimiter):
+        super().__init__(line, line_number)
+        self.delimiter = delimiter        
 
     def __str__(self):        
-        return "missing delimiter '%s'in line '%s'" % (self.delimiter, self.line)
+        return "line %s is missing delimiter '%s': \"%s\"" % (self.line_number, self.delimiter, self.line)
+

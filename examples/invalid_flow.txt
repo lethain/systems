@@ -1,0 +1,4 @@
+a > b @ 0..2
+b > c @ .2
+b > d @ 5, leaking
+d > e @ 5, fake

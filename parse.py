@@ -2,7 +2,7 @@ import sys
 import argparse
 
 import systems
-from exceptions import MissingDelimiter
+from exceptions import ParseException, ParseError, MissingDelimiter
 
 
 def parse_stock(model, name):
@@ -54,7 +54,7 @@ def parse(txt):
     by_name = {}
     flows = []
 
-    for line in txt.split('\n'):
+    for n, line in enumerate(txt.split('\n'), 1):
         line = line.strip()
         # ignore comments
         if line == "" or line.startswith("#"):
@@ -63,17 +63,19 @@ def parse(txt):
         try:
             source_name, rest  = line.split(">")
         except ValueError:
-            raise MissingDelimiter(">", line)
+            raise MissingDelimiter(line, n, ">")
 
         try:
             dest_name, args = rest.split("@")
         except ValueError:
-            raise MissingDelimiter("@", line)            
+            raise MissingDelimiter(line, n, "@")
 
-        source = parse_stock(m, source_name)
-        dest = parse_stock(m, dest_name)
-
-        parse_flow(m, source, dest, args)
+        try:
+            source = parse_stock(m, source_name)
+            dest = parse_stock(m, dest_name)
+            parse_flow(m, source, dest, args)            
+        except Exception:
+            raise ParseError(line, n)
 
     return m
 
@@ -85,7 +87,13 @@ def main():
     args = p.parse_args()
 
     txt = sys.stdin.read()
-    model = parse(txt)
+
+    try:
+        model = parse(txt)
+    except ParseException as pe:
+        print(pe)
+        return
+
     if args.csv:
         model.run(rounds=args.rounds, sep=",", pad=False)
     else:
