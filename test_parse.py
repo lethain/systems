@@ -4,6 +4,8 @@ import unittest
 import systems
 import parse
 
+from exceptions import MissingDelimiter
+
 
 EXAMPLE_FULL = """
 [a] > b @ 25
@@ -29,6 +31,20 @@ class TestParse(unittest.TestCase):
             if stock_name in values:
                 value = values[stock_name]
                 self.assertEqual(value, stock.initial)
+
+    def test_parse_missing_delim(self):
+        txt = "[a] < b @ 25"
+        with self.assertRaises(MissingDelimiter) as md:
+            parse.parse(txt)
+        self.assertEqual('>', md.exception.delimiter)
+
+        txt = "[a] > b"
+        with self.assertRaises(MissingDelimiter) as md:
+            parse.parse(txt)
+        self.assertEqual('@', md.exception.delimiter)            
+        
+
+        
         
 
 if __name__ == "__main__":

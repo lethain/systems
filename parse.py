@@ -2,6 +2,7 @@ import sys
 import argparse
 
 import systems
+from exceptions import MissingDelimiter
 
 
 def parse_stock(model, name):
@@ -59,8 +60,15 @@ def parse(txt):
         if line == "" or line.startswith("#"):
             continue
 
-        source_name, rest  = line.split(">")
-        dest_name, args = rest.split("@")
+        try:
+            source_name, rest  = line.split(">")
+        except ValueError:
+            raise MissingDelimiter(">", line)
+
+        try:
+            dest_name, args = rest.split("@")
+        except ValueError:
+            raise MissingDelimiter("@", line)            
 
         source = parse_stock(m, source_name)
         dest = parse_stock(m, dest_name)
