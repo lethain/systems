@@ -2,7 +2,7 @@ import sys
 import argparse
 
 import systems
-from exceptions import ParseException, ParseError, MissingDelimiter, UnknownFlowType, NoFlowType
+from exceptions import ParseException, ParseError, MissingDelimiter, UnknownFlowType, NoFlowType, ConflictingValues, DeferLineInfo
 
 
 def parse_stock(model, name):
@@ -28,9 +28,14 @@ def parse_stock(model, name):
             value_str = name[start_pos+1:-1]
             name = name[:start_pos]
             value = int(value_str)
-        
+
     exists = model.get_stock(name)
     if exists:
+        if value != 0:
+            if exists.initial != value and exists.initial == 0:
+                exists.initial = value
+            else:
+                raise ConflictingValues(name, exists.initial, value)
         return exists
 
     if infinite:
@@ -102,10 +107,10 @@ def parse(txt):
             source = parse_stock(m, source_name)
             dest = parse_stock(m, dest_name)
             parse_flow(m, source, dest, args)
-        except (UnknownFlowType, NoFlowType) as ft:
-            ft.line = n
-            ft.line_number = n
-            raise ft
+        except DeferLineInfo as dli:
+            dli.line = n
+            dli.line_number = n
+            raise dli
         except Exception:
             raise ParseError(line, n)
 

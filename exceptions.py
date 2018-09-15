@@ -8,7 +8,7 @@ class ParseException(Exception):
 
 class ParseError(ParseException):
     "Most generic parse error."
-    def __init__(self, line, line_number):
+    def __init__(self, line="", line_number=0):
         self.line = line
         self.line_number = line_number
         
@@ -16,17 +16,30 @@ class ParseError(ParseException):
         return "line %s could not be parsed: \"%s\"" % (self.line_number, self.line)
 
 
-class NoFlowType(ParseError):
+class DeferLineInfo(ParseError):
+    pass
+
+
+class NoFlowType(DeferLineInfo):
     "No flow type known."
-    def __init__(self):
-        # requires flow control to fill in these values later
-        super().__init__("", 0)
+    pass
 
 
-class UnknownFlowType(ParseError):
+class ConflictingValues(DeferLineInfo):
+    "Stock intialized with multiple distinct values."
+    def __init__(self, name, first, second):
+        self.name = name
+        self.first = first
+        self.second = second
+
+    def __str__(self):
+        return "line %s initializes %s with conflict value %s (was %s): \"%s\"" % (self.line_number,self.name, self.second, self.first, self.line)
+
+
+class UnknownFlowType(DeferLineInfo):
     "Specified flow type is unknown."
-    def __init__(self, flow_type, line="", line_number=0):
-        super().__init__(line, line_number)
+    def __init__(self, flow_type):
+        super().__init__()
         self.flow_type = flow_type
 
     def __str__(self):

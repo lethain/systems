@@ -4,7 +4,7 @@ import unittest
 import systems
 import parse
 
-from exceptions import ParseError, MissingDelimiter, UnknownFlowType
+from exceptions import ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues
 
 
 EXAMPLE_FULL = """
@@ -53,6 +53,17 @@ class TestParse(unittest.TestCase):
         with self.assertRaises(ParseError) as pe:
             m = parse.parse(txt)
         self.assertEqual(4, pe.exception.line_number)
+
+    def test_conflicting_stock_values(self):
+        txt = """
+        a(10) > b @ 1
+        b > a(5) @ 2
+        """
+        with self.assertRaises(ConflictingValues) as cv:
+            m = parse.parse(txt)
+        self.assertEqual('a', cv.exception.name)
+        self.assertEqual(10, cv.exception.first)
+        self.assertEqual(5, cv.exception.second)
 
 
 class TestParseStock(unittest.TestCase):
