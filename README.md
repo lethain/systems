@@ -61,3 +61,17 @@ If you want something a bit more sophisticated, you might also want to
 include links between a flow and a stock, for example you might want
 to model the number of recruiters and use that to influence the phone
 screen rate instead of fixing it at a constant value.
+
+## Error messages
+
+The parser will do its best to give you a useful error message.
+For example, if you're missing delimiters:
+
+    cat examples/no_delim.txt | python parse.py
+    line 1 is missing delimiter '>': "[a] < b @ 25"
+
+At worst, it will give you the line number and line that is
+creating an issue:
+
+    cat examples/invalid_flow.txt | python parse.py
+    line 1 could not be parsed: "a > b @ 0..2"

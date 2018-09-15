@@ -2,7 +2,7 @@ import sys
 import argparse
 
 import systems
-from exceptions import ParseException, ParseError, MissingDelimiter
+from exceptions import ParseException, ParseError, MissingDelimiter, UnknownFlowType
 
 
 def parse_stock(model, name):
@@ -42,6 +42,8 @@ def parse_flow(model, src, dest, txt):
             rate_class = systems.Conversion
         elif class_str == "rate":
             rate_class = systems.Rate
+        else:
+            raise UnknownFlowType(class_str)
 
     rate = rate_class(val)
     return model.flow(src, dest, rate)
@@ -73,7 +75,11 @@ def parse(txt):
         try:
             source = parse_stock(m, source_name)
             dest = parse_stock(m, dest_name)
-            parse_flow(m, source, dest, args)            
+            parse_flow(m, source, dest, args)
+        except UnknownFlowType as uft:
+            uft.line = n
+            uft.line_number = n
+            raise uft
         except Exception:
             raise ParseError(line, n)
 
