@@ -1,3 +1,37 @@
+
+
+
+
+## Installation
+
+Currently, install via:
+
+    git clone https://github.com/lethain/systems.git
+    cd interactions
+    python3 -m venv ./env
+    source ./env/bin/activate
+    pip install -r requirements.txt
+
+I'll also put it up on PyPi at some point, but not quite yet.
+
+
+
+## Using the command line tools
+
+Generally, you should be able to accomplish
+
+cat examples/hiring.txt | python viz.py | dot
+
+
+
+
+
+
+
+
+
+##
+
 This is a quick experiment in describing systems in a text format
 and then evaluating the defined systems.
 
