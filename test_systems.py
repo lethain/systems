@@ -30,13 +30,20 @@ class TestParse(unittest.TestCase):
 
     def test_stock_maximum_conversion(self):
         m = systems.Model("Maximum")
-        a = m.stock("a", 10)
+        a_initial = 10
+        a = m.stock("a", a_initial)
         b_max = 3
         b = m.stock("b", 0, b_max)
-        m.flow(a, b, systems.Conversion(0.5))
-        results = m.run(rounds=1)
+        f_rate = 0.5
+
+        m.flow(a, b, systems.Conversion(f_rate))
+        results = m.run(rounds=3)
         final = results[-1]
         self.assertEqual(b_max, final['b'])
+
+        # 10 - ((1 / 0.5) * 3) = 4
+        a_expected = a_initial - ((1 / f_rate) * b_max)
+        self.assertEqual(a_expected, final['a'])
 
     def test_stock_maximum_leak(self):
         m = systems.Model("Maximum")
@@ -48,4 +55,4 @@ class TestParse(unittest.TestCase):
         results = m.run(rounds=2)
         final = results[-1]
         self.assertEqual(b_max, final['b'])
-        self.assertEqual(a_initial - b_max, final['a'])        
+        self.assertEqual(a_initial - b_max, final['a'])

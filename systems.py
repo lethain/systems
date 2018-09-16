@@ -54,11 +54,11 @@ class Rate(object):
 class Conversion(Rate):
     "Converts a stock into another at a discount rate."
     def calculate(self, src, dest, capacity):
-        # TODO: support capacity
-        change = math.floor(src * self.rate)
+        max_src_change = max(0, math.floor((capacity - dest) / self.rate))
+        change = math.floor(max_src_change * self.rate)
         if change == 0:
             return 0, 0
-        return src, math.floor(src * self.rate)
+        return max_src_change, change
 
     def validate_source(self, source_stock):
         if source_stock.initial == float("+inf"):
