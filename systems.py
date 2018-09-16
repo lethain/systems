@@ -47,7 +47,7 @@ class Rate(object):
 
     def calculate(self, src, dest, capacity):
         if src - self.rate >= 0:
-            change = min(self.rate, src - self.rate)
+            change = self.rate if src - self.rate > 0 else src
             change = min(capacity, change)
             return change, change
         return 0, 0
@@ -99,7 +99,12 @@ class State(object):
     def advance(self):
         deferred = []
 
-        for flow in self.model.flows:
+        # HACK: in general better to defer starting at end of list
+        # then moving forward to support better pipelining,
+        # but it's only by convention that earlier things would
+        # be declaed earlier, so this is a weak heuristic at best.
+        # would be better to anaylze the graph
+        for flow in reversed(self.model.flows):
             source_state = self.state[flow.source.name]
             destination_state = self.state[flow.destination.name]
             rem_change, add_change = flow.change(

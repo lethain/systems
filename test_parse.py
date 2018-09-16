@@ -14,6 +14,11 @@ c > d @ 0.5, leak
 d > [e] @ 1.0
 """
 
+EXAMPLE_MAXIMUM = """
+[a] > b @ 10
+b(0, 5) > c(0, 10) @ 5
+"""
+
 
 class TestParse(unittest.TestCase):
     def test_parse(self):
@@ -31,6 +36,14 @@ class TestParse(unittest.TestCase):
             if stock_name in values:
                 value = values[stock_name]
                 self.assertEqual(value, stock.initial)
+
+
+    def test_maximums(self):
+        model = parse.parse(EXAMPLE_MAXIMUM)
+        results = model.run(rounds=4)
+        final = results[-1]
+        self.assertEqual(5, final['b'])
+        self.assertEqual(10, final['c'])
 
     def test_parse_missing_delim(self):
         txt = "[a] < b @ 25"
