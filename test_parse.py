@@ -4,7 +4,7 @@ import unittest
 import systems
 import parse
 
-from exceptions import ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues
+from exceptions import ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues, InitialExceedsMaximum, InitialIsNegative
 
 
 EXAMPLE_FULL = """
@@ -80,6 +80,9 @@ class TestParseStock(unittest.TestCase):
             ("test(0) ", "test", 0, float("+inf")),
             ("test(1) ", "test", 1, float("+inf")),
             ("test(200) ", "test", 200, float("+inf")),
+            ("test(0, 10) ", "test", 0, 10),
+            ("test(10, 10) ", "test", 10, 10),
+            ("test(10, 20) ", "test", 10, 20)
         ]
         for txt, name, val, maximum in opts:
             m = systems.Model("TestParseStock")
@@ -87,6 +90,17 @@ class TestParseStock(unittest.TestCase):
             self.assertEqual(name, stock.name)
             self.assertEqual(val, stock.initial)
             self.assertEqual(maximum, stock.maximum)
+
+    def test_illegal_maximums(self):
+        with self.assertRaises(InitialExceedsMaximum):
+            txt = "test(20, 10)"
+            m = systems.Model("TestParseStock")
+            stock = parse.parse_stock(m, txt)
+
+        with self.assertRaises(InitialIsNegative):
+            txt = "test(-5, 5)"
+            m = systems.Model("TestParseStock")
+            stock = parse.parse_stock(m, txt)
 
 
 class TestParseFlow(unittest.TestCase):

@@ -1,6 +1,6 @@
 import math
 
-from exceptions import IllegalSourceStock
+from exceptions import IllegalSourceStock, InitialIsNegative, InitialExceedsMaximum
 
 
 DEFAULT_MAXIMUM = float("+inf")
@@ -8,6 +8,12 @@ DEFAULT_MAXIMUM = float("+inf")
 
 class Stock(object):
     def __init__(self, name, initial=0, maximum=DEFAULT_MAXIMUM, show=True):
+        if initial < 0:
+            raise InitialIsNegative(initial)
+        
+        if initial > maximum:
+            raise InitialExceedsMaximum(initial, maximum)
+        
         self.name = name
         self.initial = initial
         self.show = show

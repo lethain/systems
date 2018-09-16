@@ -12,8 +12,10 @@ def parse_stock(model, name):
     Examples:
 
     - a is a stock named "a" with an intial value of 0.
-    - [a] is an infinite stock named "a"
+    - [a] is an infinite stock named "a".
     - a(50) is a stock named "a" with an initial value of 50.
+    - a(5, 10) is a stock named "a' with innitia lvalue of 5
+      and maximum value of 10.
     """
     name = name.strip()
     infinite = False
@@ -22,11 +24,18 @@ def parse_stock(model, name):
         infinite = True
 
     value = 0
+    maximum = float('+inf')
     if name.endswith(')'):
         start_pos = name.rfind('(')
         if start_pos > 0:
             value_str = name[start_pos + 1:-1]
             name = name[:start_pos]
+            
+            # handle (10, 20) format
+            if ',' in value_str:
+                front, tail = value_str.split(',')
+                maximum = int(tail.strip())
+                value_str = front
             value = int(value_str)
 
     exists = model.get_stock(name)
@@ -40,7 +49,7 @@ def parse_stock(model, name):
 
     if infinite:
         return model.infinite_stock(name)
-    return model.stock(name, value)
+    return model.stock(name, value, maximum)
 
 
 def parse_flow(model, src, dest, txt):
