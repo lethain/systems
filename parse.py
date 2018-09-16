@@ -131,10 +131,12 @@ def main():
         print(pe)
         return
 
+    results = model.run(rounds=args.rounds)
+    kwargs = {}
     if args.csv:
-        model.run(rounds=args.rounds, sep=",", pad=False)
-    else:
-        model.run(rounds=args.rounds)
+        kwargs['sep'] = ','
+        kwargs['pad'] = False
+    print(model.render(results, **kwargs))
 
 
 if __name__ == "__main__":

@@ -70,21 +70,22 @@ class TestParseStock(unittest.TestCase):
     "Test parsing stocks."
     def test_parse_stock(self):
         opts = [
-            ("[a]", "a", float("+inf")),
-            ("b", "b", 0),
-            ("[b", "[b", 0),
-            ("test this", "test this", 0),
-            ("  test ", "test", 0),
-            (" test", "test", 0),
-            ("test(0) ", "test", 0),
-            ("test(1) ", "test", 1),
-            ("test(200) ", "test", 200),
+            ("[a]", "a", float("+inf"), float("+inf")),
+            ("b", "b", 0, float("+inf")),
+            ("[b", "[b", 0, float("+inf")),
+            ("test this", "test this", 0, float("+inf")),
+            ("  test ", "test", 0, float("+inf")),
+            (" test", "test", 0, float("+inf")),
+            ("test(0) ", "test", 0, float("+inf")),
+            ("test(1) ", "test", 1, float("+inf")),
+            ("test(200) ", "test", 200, float("+inf")),
         ]
-        for txt, name, val in opts:
+        for txt, name, val, maximum in opts:
             m = systems.Model("TestParseStock")
             stock = parse.parse_stock(m, txt)
             self.assertEqual(name, stock.name)
             self.assertEqual(val, stock.initial)
+            self.assertEqual(maximum, stock.maximum)
 
 
 class TestParseFlow(unittest.TestCase):

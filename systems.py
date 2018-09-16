@@ -1,16 +1,19 @@
 import math
 
+DEFAULT_MAXIMUM = float("+inf")
+
 
 class Stock(object):
-    def __init__(self, name, initial=0, show=True):
+    def __init__(self, name, initial=0, maximum=DEFAULT_MAXIMUM, show=True):
         self.name = name
         self.initial = initial
         self.show = show
+        self.maximum = maximum
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)
 
-    
+
 class Flow(object):
     def __init__(self, source, destination, rate):
         self.source = source
@@ -37,7 +40,7 @@ class Rate(object):
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.rate)
 
-    
+
 class Conversion(Rate):
     "Converts a stock into another at a discount rate."
     def calculate(self, src, dest):
@@ -63,7 +66,7 @@ class State(object):
 
     def advance(self):
         deferred = []
-        
+
         for flow in self.model.flows:
             source_state = self.state[flow.source.name]
             destination_state = self.state[flow.destination.name]
@@ -93,7 +96,7 @@ class Model(object):
     def infinite_stock(self, name):
         s = Stock(name, float("+inf"), show=False)
         self.stocks.append(s)
-        return s        
+        return s
 
     def stock(self, *args, **kwargs):
         s = Stock(*args, **kwargs)
@@ -105,29 +108,34 @@ class Model(object):
         self.flows.append(f)
         return f
 
-    def run(self, rounds=10, sep='\t', pad=True):
+    def run(self, rounds=10):
         s = State(self)
         snapshots = [s.snapshot()]
         for i in range(rounds):
             s.advance()
             snapshots.append(s.snapshot())
+        return snapshots
 
+    def render(self, results, sep='\t', pad=True):
+        "Render results to string from Model run."
+        lines = []
         
-        col_stocks = [s for s in self.stocks if s.show]    
+        col_stocks = [s for s in self.stocks if s.show]
         header = sep[:]
         header += sep.join([s.name for s in col_stocks])
         col_size = [len(s.name) for s in col_stocks]
+        lines.append(header)
 
-        print(header)
-        for i, snapshot in enumerate(snapshots):
+        for i, snapshot in enumerate(results):
             row = "%s" % i
             for j, col in enumerate(col_stocks):
                 num = str(snapshot[col.name])
                 if pad:
                     num = num.ljust(col_size[j])
-                
+
                 row += sep[:] + num
-            print(row)
+            lines.append(row)
+        return "\n".join(lines)
 
 
 def main():
@@ -144,9 +152,8 @@ def main():
     m.flow(onsites, offers, Conversion(0.5))
     m.flow(offers, hires, Conversion(0.7))
 
-    m.run()
-    # CSV
-    # m.run(sep=',', pad=False)
+    rows = m.run()
+    print(m.render(rows))
 
 
 if __name__ == "__main__":
