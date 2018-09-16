@@ -1,5 +1,8 @@
 import math
 
+from exceptions import IllegalSourceStock
+
+
 DEFAULT_MAXIMUM = float("+inf")
 
 
@@ -19,6 +22,7 @@ class Flow(object):
         self.source = source
         self.destination = destination
         self.rate = rate
+        self.rate.validate_source(self.source)
 
     def change(self, source_state, dest_state):
         capacity = self.destination.maximum - dest_state        
@@ -39,6 +43,10 @@ class Rate(object):
             return change, change
         return 0, 0
 
+    def validate_source(self, source_stock):
+        "Raise exception is source is not legal."
+        return
+
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.rate)
 
@@ -52,8 +60,12 @@ class Conversion(Rate):
             return 0, 0
         return src, math.floor(src * self.rate)
 
+    def validate_source(self, source_stock):
+        if source_stock.initial == float("+inf"):
+            raise IllegalSourceStock(self, source_stock)
 
-class Leak(Rate):
+
+class Leak(Conversion):
     "A stock leaks a percentage of its value into another."
     def calculate(self, src, dest, capacity):
         # TODO: support capacity

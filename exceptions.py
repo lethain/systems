@@ -1,9 +1,31 @@
-
+"""
+Custom exceptions for systems package.
+"""
 import exceptions
 
-class ParseException(Exception):
+
+class SystemsException(Exception):
+    "Base class for systems package."
+
+
+class ParseException(SystemsException):
     "Base class for parse exceptions."
     pass
+
+
+class IllegalSystemException(SystemsException):
+    "Base class for illegal system configurations."
+    pass
+
+
+class IllegalSourceStock(IllegalSystemException):
+    "Source can't be used with this Rate."
+    def __init__(self, rate, source):
+        self.rate = rate
+        self.source = source
+
+    def __str__(self):
+        return "stock '%s' can be used as source for rate '%s'" % (self.source, self.rate)
 
 
 class ParseError(ParseException):
