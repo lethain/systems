@@ -21,7 +21,8 @@ class Flow(object):
         self.rate = rate
 
     def change(self, source_state, dest_state):
-        return self.rate.calculate(source_state, dest_state)
+        capacity = self.destination.maximum - dest_state        
+        return self.rate.calculate(source_state, dest_state, capacity)
 
     def __repr__(self):
         return "%s(%s to %s at %s)" % (self.__class__.__name__, self.source, self.destination, self.rate)
@@ -31,9 +32,10 @@ class Rate(object):
     def __init__(self, rate):
         self.rate = rate
 
-    def calculate(self, src, dest):
+    def calculate(self, src, dest, capacity):
         if src - self.rate >= 0:
             change = min(self.rate, src - self.rate)
+            change = min(capacity, change)
             return change, change
         return 0, 0
 
@@ -43,7 +45,8 @@ class Rate(object):
 
 class Conversion(Rate):
     "Converts a stock into another at a discount rate."
-    def calculate(self, src, dest):
+    def calculate(self, src, dest, capacity):
+        # TODO: support capacity
         change = math.floor(src * self.rate)
         if change == 0:
             return 0, 0
@@ -52,7 +55,8 @@ class Conversion(Rate):
 
 class Leak(Rate):
     "A stock leaks a percentage of its value into another."
-    def calculate(self, src, dest):
+    def calculate(self, src, dest, capacity):
+        # TODO: support capacity
         change = math.floor(src * self.rate)
         return change, change
 
