@@ -8,16 +8,18 @@ DEFAULT_MAXIMUM = float("+inf")
 
 class Stock(object):
     def __init__(self, name, initial=0, maximum=DEFAULT_MAXIMUM, show=True):
-        if initial < 0:
-            raise InitialIsNegative(initial)
-        
-        if initial > maximum:
-            raise InitialExceedsMaximum(initial, maximum)
-        
         self.name = name
         self.initial = initial
         self.show = show
         self.maximum = maximum
+        self.validate()
+
+    def validate(self):
+        if self.initial < 0:
+            raise InitialIsNegative(self.initial)
+
+        if self.initial > self.maximum:
+            raise InitialExceedsMaximum(self.initial, self.maximum)
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)

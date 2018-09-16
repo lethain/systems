@@ -24,13 +24,13 @@ def parse_stock(model, name):
         infinite = True
 
     value = 0
-    maximum = float('+inf')
+    maximum = systems.DEFAULT_MAXIMUM
     if name.endswith(')'):
         start_pos = name.rfind('(')
         if start_pos > 0:
             value_str = name[start_pos + 1:-1]
             name = name[:start_pos]
-            
+
             # handle (10, 20) format
             if ',' in value_str:
                 front, tail = value_str.split(',')
@@ -45,6 +45,12 @@ def parse_stock(model, name):
                 exists.initial = value
             else:
                 raise ConflictingValues(name, exists.initial, value)
+        if maximum != systems.DEFAULT_MAXIMUM:
+            if exists.maximum != maximum and exists.maximum == systems.DEFAULT_MAXIMUM:
+                exists.maximum = maximum
+            else:
+                raise ConflictingValues(name, exists.maximum, maximum)
+        exists.validate()
         return exists
 
     if infinite:
@@ -117,11 +123,11 @@ def parse(txt):
             dest = parse_stock(m, dest_name)
             parse_flow(m, source, dest, args)
         except DeferLineInfo as dli:
-            dli.line = n
+            dli.line = line
             dli.line_number = n
             raise dli
-        except Exception:
-            raise ParseError(line, n)
+        except Exception as e:
+            raise ParseError(line, n, e)
 
     return m
 

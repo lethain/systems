@@ -36,7 +36,7 @@ class InitialExceedsMaximum(IllegalSystemException):
         self.initial = initial
         self.maximum = maximum
 
-    def __str__(eslf):
+    def __str__(self):
         return "can't specify an initial value '%s' greater than maximum value '%s'" % (self.initial, self.maximum)
 
 
@@ -52,13 +52,16 @@ class InitialIsNegative(IllegalSystemException):
 class ParseError(ParseException):
     "Most generic parse error."
 
-    def __init__(self, line="", line_number=0):
+    def __init__(self, line="", line_number=0, exception=None):
         self.line = line
         self.line_number = line_number
+        self.exception = exception
 
     def __str__(self):
-        return "line %s could not be parsed: \"%s\"" % (
-            self.line_number, self.line)
+        s = "line %s could not be parsed: \"%s\"" % (self.line_number, self.line)
+        if self.exception is not None:
+            s += "\n" + str(self.exception)
+        return s
 
 
 class DeferLineInfo(ParseError):
