@@ -68,8 +68,8 @@ class Conversion(Rate):
 class Leak(Conversion):
     "A stock leaks a percentage of its value into another."
     def calculate(self, src, dest, capacity):
-        # TODO: support capacity
         change = math.floor(src * self.rate)
+        change = min(capacity, change)        
         return change, change
 
 
