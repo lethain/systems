@@ -32,12 +32,12 @@ class TestParse(unittest.TestCase):
         "Should allow infinite stocks as destinations stock for all rates."
         rates = [systems.Rate(5), systems.Conversion(0.25), systems.Leak(0.25)]
         for rate in rates:
-            m = systems.Model("Maximum")            
+            m = systems.Model("Maximum")
             a = m.stock("a", 100)
             b = m.infinite_stock("b")
             m.flow(a, b, rate)
             m.run(rounds=3)
-                
+
     def test_stock_maximum_conversion(self):
         m = systems.Model("Maximum")
         a_initial = 10

@@ -25,11 +25,12 @@ class Flow(object):
         self.rate.validate_source(self.source)
 
     def change(self, source_state, dest_state):
-        capacity = self.destination.maximum - dest_state        
+        capacity = self.destination.maximum - dest_state
         return self.rate.calculate(source_state, dest_state, capacity)
 
     def __repr__(self):
-        return "%s(%s to %s at %s)" % (self.__class__.__name__, self.source, self.destination, self.rate)
+        return "%s(%s to %s at %s)" % (self.__class__.__name__,
+                                       self.source, self.destination, self.rate)
 
 
 class Rate(object):
@@ -53,12 +54,13 @@ class Rate(object):
 
 class Conversion(Rate):
     "Converts a stock into another at a discount rate."
+
     def calculate(self, src, dest, capacity):
         if dest == float("+inf") or capacity == float("+inf"):
             max_src_change = src
         else:
             max_src_change = max(0, math.floor((capacity - dest) / self.rate))
-            
+
         change = math.floor(max_src_change * self.rate)
         if change == 0:
             return 0, 0
@@ -71,6 +73,7 @@ class Conversion(Rate):
 
 class Leak(Conversion):
     "A stock leaks a percentage of its value into another."
+
     def calculate(self, src, dest, capacity):
         change = math.floor(src * self.rate)
         if not math.isnan(capacity):
@@ -91,7 +94,8 @@ class State(object):
         for flow in self.model.flows:
             source_state = self.state[flow.source.name]
             destination_state = self.state[flow.destination.name]
-            rem_change, add_change = flow.change(source_state, destination_state)
+            rem_change, add_change = flow.change(
+                source_state, destination_state)
             self.state[flow.source.name] -= rem_change
             deferred.append((flow.destination.name, add_change))
 
@@ -104,6 +108,7 @@ class State(object):
 
 class Model(object):
     "Models contain and runs stocks and flows."
+
     def __init__(self, name):
         self.name = name
         self.stocks = []
@@ -140,7 +145,7 @@ class Model(object):
     def render(self, results, sep='\t', pad=True):
         "Render results to string from Model run."
         lines = []
-        
+
         col_stocks = [s for s in self.stocks if s.show]
         header = sep[:]
         header += sep.join([s.name for s in col_stocks])
@@ -165,7 +170,7 @@ def main():
     screens = m.stock("Phone Screen")
     onsites = m.stock("Onsites")
     offers = m.stock("Offers")
-    hires= m.stock("Hires")
+    hires = m.stock("Hires")
 
     r = Rate(1)
     m.flow(candidates, screens, Rate(2))

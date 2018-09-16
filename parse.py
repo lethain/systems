@@ -25,7 +25,7 @@ def parse_stock(model, name):
     if name.endswith(')'):
         start_pos = name.rfind('(')
         if start_pos > 0:
-            value_str = name[start_pos+1:-1]
+            value_str = name[start_pos + 1:-1]
             name = name[:start_pos]
             value = int(value_str)
 
@@ -52,10 +52,10 @@ def parse_flow(model, src, dest, txt):
     # guess class by value
     try:
         if "." in val:
-            val = float(val)            
+            val = float(val)
             rate_class = systems.Conversion
         else:
-            val = int(val)            
+            val = int(val)
             rate_class = systems.Rate
     except ValueError:
         pass
@@ -77,7 +77,7 @@ def parse_flow(model, src, dest, txt):
 
     rate = rate_class(val)
     return model.flow(
-src, dest, rate)
+        src, dest, rate)
 
 
 def parse(txt):
@@ -94,7 +94,7 @@ def parse(txt):
             continue
 
         try:
-            source_name, rest  = line.split(">")
+            source_name, rest = line.split(">")
         except ValueError:
             raise MissingDelimiter(line, n, ">")
 
@@ -119,7 +119,12 @@ def parse(txt):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('-r', '--rounds', type=int, help="number of rounds to run evaluation", default=10)
+    p.add_argument(
+        '-r',
+        '--rounds',
+        type=int,
+        help="number of rounds to run evaluation",
+        default=10)
     p.add_argument('--csv', action='store_true', default=False)
     args = p.parse_args()
 

@@ -68,6 +68,7 @@ class TestParse(unittest.TestCase):
 
 class TestParseStock(unittest.TestCase):
     "Test parsing stocks."
+
     def test_parse_stock(self):
         opts = [
             ("[a]", "a", float("+inf"), float("+inf")),
@@ -90,6 +91,7 @@ class TestParseStock(unittest.TestCase):
 
 class TestParseFlow(unittest.TestCase):
     "Test parsing flows."
+
     def test_parse_flow(self):
         m = systems.Model("TestParseStock")
         source = m.stock("source")
@@ -108,7 +110,7 @@ class TestParseFlow(unittest.TestCase):
         destination = m.stock("destination")
 
         opts = [
-           ("0..1", ParseError),
+            ("0..1", ParseError),
             ("hello", ParseError),
             ("0.1, fake", UnknownFlowType),
         ]
@@ -116,7 +118,6 @@ class TestParseFlow(unittest.TestCase):
         for txt, exception_class in opts:
             with self.assertRaises(exception_class):
                 parse.parse_flow(m, source, destination, txt)
-
 
 
 if __name__ == "__main__":
