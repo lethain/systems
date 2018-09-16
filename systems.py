@@ -54,7 +54,11 @@ class Rate(object):
 class Conversion(Rate):
     "Converts a stock into another at a discount rate."
     def calculate(self, src, dest, capacity):
-        max_src_change = max(0, math.floor((capacity - dest) / self.rate))
+        if dest == float("+inf") or capacity == float("+inf"):
+            max_src_change = src
+        else:
+            max_src_change = max(0, math.floor((capacity - dest) / self.rate))
+            
         change = math.floor(max_src_change * self.rate)
         if change == 0:
             return 0, 0
@@ -69,7 +73,8 @@ class Leak(Conversion):
     "A stock leaks a percentage of its value into another."
     def calculate(self, src, dest, capacity):
         change = math.floor(src * self.rate)
-        change = min(capacity, change)        
+        if not math.isnan(capacity):
+            change = min(capacity, change)
         return change, change
 
 
