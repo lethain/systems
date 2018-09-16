@@ -37,3 +37,15 @@ class TestParse(unittest.TestCase):
         results = m.run(rounds=1)
         final = results[-1]
         self.assertEqual(b_max, final['b'])
+
+    def test_stock_maximum_leak(self):
+        m = systems.Model("Maximum")
+        a_initial = 10
+        a = m.stock("a", a_initial)
+        b_max = 3
+        b = m.stock("b", 0, b_max)
+        m.flow(a, b, systems.Leak(0.5))
+        results = m.run(rounds=1)
+        final = results[-1]
+        self.assertEqual(b_max, final['b'])
+        self.assertEqual(a_initial - b_max, final['a'])        
