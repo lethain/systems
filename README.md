@@ -89,18 +89,18 @@ Then you could run the simulation for 10 rounds:
 
         cat examples/links.txt | python3 parse.py -r10
 
-                Recruiters      PhoneScreens    Onsites Offers  Hires   Employees       Departures
-	0       10              0               0       0       0       0               0
-	1       11              30              0       0       0       0               0
-	2       12              33              15      0       0       0               0
-	3       13              36              16      7       0       0               0
-	4       14              39              18      8       3       0               0
-	5       15              42              19      9       4       3               0
-	6       15              45              21      9       4       7               0
-	7       15              45              22      10      4       11              0
-	8       15              45              22      11      5       14              1
-	9       15              45              22      11      5       18              1
-	10      15              45              22      11      5       22              1
+            Recruiters      PhoneScreens    Onsites Offers  Hires   Employees       Departures
+    0       10              0               0       0       0       0               0
+    1       11              30              0       0       0       0               0
+    2       12              33              15      0       0       0               0
+    3       13              36              16      7       0       0               0
+    4       14              39              18      8       3       0               0
+    5       15              42              19      9       4       3               0
+    6       15              45              21      9       4       7               0
+    7       15              45              22      10      4       11              0
+    8       15              45              22      11      5       14              1
+    9       15              45              22      11      5       18              1
+    10      15              45              22      11      5       22              1
 
 You can also get the output as CSV:
 
