@@ -227,3 +227,19 @@ creating an issue:
 
     cat examples/invalid_flow.txt | systems-run
     line 1 could not be parsed: "a > b @ 0..2"
+
+
+## Uploading distribution
+
+If you are trying to install this on PyPi, the steps are roughly:
+
+    python3 -m pip install --user --upgrade pip
+    python3 -m pip install --user --upgrade wheel
+    python3 -m pip install --user --upgrade twine
+    python3 setup.py sdist bdist_wheel
+    twine upload --repository-url https://upload.pypi.org/legacy/ dist/*    
+
+That should more or less work. :)
+
+    
+
