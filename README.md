@@ -13,7 +13,7 @@ importable format):
 
     cat tmp.txt | python parse.py -r 3
     
-    Start   Middle  End
+            Start   Middle  End
     0       10      0       0
     1       8       2       0
     2       6       3       1
