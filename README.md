@@ -12,7 +12,7 @@ and then are able to evaluate your system (use `--csv` for an
 importable format):
 
     cat tmp.txt | python parse.py -r 3
-    
+
             Start   Middle  End
     0       10      0       0
     1       8       2       0
@@ -22,7 +22,7 @@ importable format):
 You can also export your system into [Graphviz](https://www.graphviz.org/):
 
     cat tmp.txt | python viz.py
-    
+
     // Parsed
     digraph {
       0 [label=Start]
@@ -72,53 +72,39 @@ Visualize a model into `dot` for Graphviz:
 Let's say you wanted to describe your hiring funnel and retention
 for a rapidly growing company, you could do so via:
 
-     # wrap with [] to indicate an infinite stock that
-     # isn't included in each table
-     # integers are implicitly steady rates
-     [Candidates] > PhoneScreens @ 25
-
-     # floats are implicitly conversions that convert the
-     # source stock into the destination stock at a discount
-     # e.g. a source at 10 with a 0.5 conversion would empty
-     # itself and add 5 units to the destination
+     [PossibleRecruiters] > Recruiters(10, 15) @ 1
+     [Candidates] > PhoneScreens @ Recruiters * 3
      PhoneScreens > Onsites      @ 0.5
      Onsites      > Offers       @ 0.5
      Offers       > Hires        @ 0.5
      Hires        > Employees    @ 1.0
-
-     # specify leak to avoid a destructive conversion
      Employees    > Departures   @ 0.1, leak
      Departures   > [Departed]   @ 1.0
 
-Then you could run the simulation for 15 rounds:
+Note that you're able to refer to the value of `Recruiters` when specifying
+the size of the flow between `Candidates` and `PhoneScreens`. This allows you
+to build feedback loops and such!
 
-    > cat hiring.txt | python3 parse.py -r15
-            PhoneScreens    Onsites Offers  Hires   Employees       Departures
-    0       0               0       0       0       0               0
-    1       25              0       0       0       0               0
-    2       25              12      0       0       0               0
-    3       25              12      6       0       0               0
-    4       25              12      6       3       0               0
-    5       25              12      6       3       3               0
-    6       25              12      6       3       6               0
-    7       25              12      6       3       9               0
-    8       25              12      6       3       12              0
-    9       25              12      6       3       14              1
-    10      25              12      6       3       16              1
-    11      25              12      6       3       18              1
-    12      25              12      6       3       20              1
-    13      25              12      6       3       21              2
-    14      25              12      6       3       22              2
-    15      25              12      6       3       23              2
+Then you could run the simulation for 10 rounds:
 
+        cat examples/links.txt | python3 parse.py -r10
+
+                Recruiters      PhoneScreens    Onsites Offers  Hires   Employees       Departures
+	0       10              0               0       0       0       0               0
+	1       11              30              0       0       0       0               0
+	2       12              33              15      0       0       0               0
+	3       13              36              16      7       0       0               0
+	4       14              39              18      8       3       0               0
+	5       15              42              19      9       4       3               0
+	6       15              45              21      9       4       7               0
+	7       15              45              22      10      4       11              0
+	8       15              45              22      11      5       14              1
+	9       15              45              22      11      5       18              1
+	10      15              45              22      11      5       22              1
 
 You can also get the output as CSV:
 
-    cat hiring.txt | python3 parse.py -r2 --csv
-    ,PhoneScreens,Onsites,Offers,Hires,Employees,Departures
-    0,0,0,0,0,0,0
-    1,25,0,0,0,0,0
-    2,25,12,0,0,0,0
+    cat examples/links.txt | python3 parse.py -r10 --csv
 
 Which you could... load into a spreadsheet or something to graph!
 
@@ -191,7 +177,7 @@ against the conversion rate, adding the result to the next flow.
 
     # these are equivalent
     a(10) > b @ 0.5
-    a(10) > b @ 0.5, conversion    
+    a(10) > b @ 0.5, conversion
 
 
 The above would multiple `0.5` against `10` and move `5` units to `b`,
