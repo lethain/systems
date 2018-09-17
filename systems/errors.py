@@ -1,7 +1,6 @@
 """
 Custom exceptions for systems package.
 """
-import exceptions
 
 
 class SystemsException(Exception):

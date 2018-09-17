@@ -11,7 +11,7 @@ by writing a file describing your system:
 and then are able to evaluate your system (use `--csv` for an
 importable format):
 
-    cat tmp.txt | python parse.py -r 3
+    cat tmp.txt | systems-run -r 3
 
             Start   Middle  End
     0       10      0       0
@@ -35,7 +35,7 @@ You can also export your system into [Graphviz](https://www.graphviz.org/):
 From there you could push that output through Graphviz's
 `dot` renderer to generate a diagram:
 
-    cat tmp.txt | python viz.py | dot -Tpng -o tmp.png
+    cat tmp.txt | systems-viz | dot -Tpng -o tmp.png
     open tmp.png
 
 If you're trying to render the diagram into a Jupyterhub notebook,
@@ -46,26 +46,33 @@ to render.
 
 ## Installation
 
-Currently, install via:
+To install via PyPi:
+
+    pip install systems
+
+To install for local development:
 
     git clone https://github.com/lethain/systems.git
-    cd interactions
+    cd systems
     python3 -m venv ./env
-    source ./env/bin/activate
-    pip install -r requirements.txt
+    source ./env/bin/activate    
+    python setup.py develop
 
-I'll also put it up on PyPi at some point, but not quite yet.
+Run tests via:
 
+    python3 -m unittest tests/test_*.py
+
+Please open an Github issue if you run into any problems!
 
 ## Using the command line tools
 
 Run a model in a file:
 
-    cat tmp.txt | python parse.py -r 3
+    cat tmp.txt | systems-run -r 3
 
 Visualize a model into `dot` for Graphviz:
 
-    cat examples/hiring.txt | python viz.py | dot
+    cat examples/hiring.txt | systems-viz | dot
 
 ## Example: Hiring Funnel
 
@@ -87,7 +94,7 @@ to build feedback loops and such!
 
 Then you could run the simulation for 10 rounds:
 
-    cat examples/links.txt | python3 parse.py -r10
+    cat examples/links.txt | systems-run -r10
 
             Recruiters      PhoneScreens    Onsites Offers  Hires   Employees       Departures
     0       10              0               0       0       0       0               0
@@ -104,7 +111,7 @@ Then you could run the simulation for 10 rounds:
 
 You can also get the output as CSV:
 
-    cat examples/links.txt | python3 parse.py -r10 --csv
+    cat examples/links.txt | systems-run -r10 --csv
 
 Which you could... load into a spreadsheet or something to graph!
 
@@ -212,11 +219,11 @@ the `e` stock.
 The parser will do its best to give you a useful error message.
 For example, if you're missing delimiters:
 
-    cat examples/no_delim.txt | python parse.py
+    cat examples/no_delim.txt | systems-run
     line 1 is missing delimiter '>': "[a] < b @ 25"
 
 At worst, it will give you the line number and line that is
 creating an issue:
 
-    cat examples/invalid_flow.txt | python parse.py
+    cat examples/invalid_flow.txt | systems-run
     line 1 could not be parsed: "a > b @ 0..2"

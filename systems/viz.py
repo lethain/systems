@@ -5,8 +5,8 @@ import sys
 
 from graphviz import Digraph
 
-import parse
-from exceptions import ParseException
+from . import parse
+from .errors import ParseException
 
 
 def as_dot(model):

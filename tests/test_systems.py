@@ -1,8 +1,10 @@
 "Test systems.py"
 import unittest
 
-import systems
-from exceptions import IllegalSourceStock
+from systems.errors import IllegalSourceStock
+
+# TODO: rename systems.systems to models
+import systems.systems as systems
 
 
 class TestParse(unittest.TestCase):

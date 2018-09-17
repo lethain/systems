@@ -1,10 +1,9 @@
 "Test parse.py"
 import unittest
 
-import systems
-import parse
-
-from exceptions import ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues, InitialExceedsMaximum, InitialIsNegative, InvalidFormula
+import systems.parse as parse
+from systems.errors import ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues, InitialExceedsMaximum, InitialIsNegative, InvalidFormula
+import systems.systems as systems
 
 
 EXAMPLE_FULL = """

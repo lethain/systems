@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+
+import systems.viz
+systems.viz.main()

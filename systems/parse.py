@@ -1,8 +1,8 @@
 import sys
 import argparse
 
-import systems
-from exceptions import ParseException, ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues, DeferLineInfo
+import systems.systems as systems
+from .errors import ParseException, ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues, DeferLineInfo
 
 
 def parse_stock(model, name):

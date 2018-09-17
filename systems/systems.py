@@ -1,6 +1,6 @@
 import math
 
-from exceptions import IllegalSourceStock, InitialIsNegative, InitialExceedsMaximum, InvalidFormula
+from .errors import IllegalSourceStock, InitialIsNegative, InitialExceedsMaximum, InvalidFormula
 
 
 DEFAULT_MAXIMUM = float("+inf")

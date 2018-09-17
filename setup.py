@@ -13,9 +13,16 @@ with open("README.md", "r") as fh:
                 long_description_content_type="text/markdown",
                 url="https://github.com/lethain/systems",
                 packages=setuptools.find_packages(),
+                install_requires=[
+                        "graphviz",
+                ],
                 classifiers=[
-                            "Programming Language :: Python :: 3",
-                            "License :: OSI Approved :: MIT License",
-                            "Operating System :: OS Independent",
-                        ],
-            )
+                        "Programming Language :: Python :: 3",
+                        "License :: OSI Approved :: MIT License",
+                        "Operating System :: OS Independent",
+                ],
+                scripts=[
+                        "bin/systems-run",
+                        "bin/systems-viz",
+                ],
+        )
