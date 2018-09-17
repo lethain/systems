@@ -92,7 +92,7 @@ class Leak(Conversion):
 class Formula(Rate):
     "Evaluate a formula reference multiple nodes."
     ops = ["+", "-", "*", "/"]
-    
+
     def __init__(self, rate):
         super().__init__(0)
         self.formula = rate
@@ -122,7 +122,6 @@ class Formula(Rate):
             if char == " ":
                 if acc:
                     elements.append(self.element_kind(acc))
-                    
                 acc = ""
             elif char in ops:
                 if acc:
@@ -131,7 +130,36 @@ class Formula(Rate):
                 acc = ""
             else:
                 acc += char
-        elements.append(self.element_kind(acc))
+        if acc:
+            elements.append(self.element_kind(acc))
+
+        # we've built the elements, now to validate them
+        acc = False
+        op = None
+        for kind, value in elements:
+            if kind == "op":
+                if value not in self.ops:
+                    raise InvalidFormula(self.formula, "unknown operator '%s'" % (op,))
+
+                if acc is False:
+                    raise InvalidFormula(self.formula, "can't start formula with an operator")
+                op = value
+                continue
+            
+            if acc is False:
+                acc = True
+                continue
+
+            if acc is True and op is None:
+                raise InvalidFormula(self.formula, "must have operation between values")
+
+            if op and kind != "op":
+                acc = True
+                op = None
+                                     
+        if op is not None:
+            raise InvalidFormula(self.formula, "unused operation in formula")
+
         return elements
 
     def calculate(self, state, src, dest, capacity):
@@ -141,18 +169,17 @@ class Formula(Rate):
             if kind == "op":
                 op = value
                 continue
-            
+
             if kind == "variable":
+                # have to do this validation at run-time because referenced
+                # stocks may not exist when flow is first defined
                 if value not in state:
-                    raise InvalidFormula(self.formula, "referenced variable '%s' does not exist" % (value,))                
+                    raise InvalidFormula(self.formula, "referenced variable '%s' does not exist" % (value,))
                 value = state[value]
 
             if acc is None:
                 acc = value
                 continue
-                
-            if acc is not None and op is None:
-                raise InvalidFormula(self.formula, "must have operation between values")
 
             # if you've reached here, then `op` is specified, `acc` is not None,
             # and it's time to do some math
@@ -164,12 +191,7 @@ class Formula(Rate):
                 acc = acc + value
             elif op == '-':
                 acc = acc - value
-            else:
-                raise InvalidFormula(self.formula, "unknown operator '%s'" % (op,))
             op = None
-
-        if op is not None:
-            raise InvalidFormula(self.formula, "unused operation in formula")
 
         # get into expected format to treat this as a Rate
         self.rate = acc

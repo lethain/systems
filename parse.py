@@ -2,7 +2,7 @@ import sys
 import argparse
 
 import systems
-from exceptions import ParseException, ParseError, MissingDelimiter, UnknownFlowType, NoFlowType, ConflictingValues, DeferLineInfo
+from exceptions import ParseException, ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues, DeferLineInfo
 
 
 def parse_stock(model, name):
@@ -88,7 +88,7 @@ def parse_flow(model, src, dest, txt):
             raise UnknownFlowType(class_str)
 
     if rate_class is None:
-        raise NoFlowType()
+        rate_class = systems.Formula
 
     rate = rate_class(val)
     return model.flow(

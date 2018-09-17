@@ -77,11 +77,6 @@ class DeferLineInfo(ParseError):
     pass
 
 
-class NoFlowType(DeferLineInfo):
-    "No flow type known."
-    pass
-
-
 class ConflictingValues(DeferLineInfo):
     "Stock intialized with multiple distinct values."
 
