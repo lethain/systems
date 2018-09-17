@@ -59,9 +59,13 @@ I'll also put it up on PyPi at some point, but not quite yet.
 
 ## Using the command line tools
 
-Generally, you should be able to accomplish
+Run a model in a file:
 
-cat examples/hiring.txt | python viz.py | dot
+    cat tmp.txt | python parse.py -r 3
+
+Visualize a model into `dot` for Graphviz:
+
+    cat examples/hiring.txt | python viz.py | dot
 
 ## Example: Hiring Funnel
 
