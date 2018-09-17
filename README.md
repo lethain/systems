@@ -21,7 +21,7 @@ importable format):
 
 You can also export your system into [Graphviz](https://www.graphviz.org/):
 
-    cat tmp.txt | python viz.py
+    cat tmp.txt | systems-viz
 
     // Parsed
     digraph {
