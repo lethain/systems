@@ -37,7 +37,6 @@ class TestParse(unittest.TestCase):
                 value = values[stock_name]
                 self.assertEqual(value, stock.initial)
 
-
     def test_maximums(self):
         model = parse.parse(EXAMPLE_MAXIMUM)
         results = model.run(rounds=4)

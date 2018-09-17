@@ -1,6 +1,6 @@
 import math
 
-from exceptions import IllegalSourceStock, InitialIsNegative, InitialExceedsMaximum
+from exceptions import IllegalSourceStock, InitialIsNegative, InitialExceedsMaximum, InvalidFormula
 
 
 DEFAULT_MAXIMUM = float("+inf")
@@ -32,9 +32,9 @@ class Flow(object):
         self.rate = rate
         self.rate.validate_source(self.source)
 
-    def change(self, source_state, dest_state):
+    def change(self, state, source_state, dest_state):
         capacity = self.destination.maximum - dest_state
-        return self.rate.calculate(source_state, dest_state, capacity)
+        return self.rate.calculate(state, source_state, dest_state, capacity)
 
     def __repr__(self):
         return "%s(%s to %s at %s)" % (self.__class__.__name__,
@@ -45,7 +45,7 @@ class Rate(object):
     def __init__(self, rate):
         self.rate = rate
 
-    def calculate(self, src, dest, capacity):
+    def calculate(self, state, src, dest, capacity):
         if src - self.rate >= 0:
             change = self.rate if src - self.rate > 0 else src
             change = min(capacity, change)
@@ -63,7 +63,7 @@ class Rate(object):
 class Conversion(Rate):
     "Converts a stock into another at a discount rate."
 
-    def calculate(self, src, dest, capacity):
+    def calculate(self, state, src, dest, capacity):
         if dest == float("+inf") or capacity == float("+inf"):
             max_src_change = src
         else:
@@ -82,11 +82,99 @@ class Conversion(Rate):
 class Leak(Conversion):
     "A stock leaks a percentage of its value into another."
 
-    def calculate(self, src, dest, capacity):
+    def calculate(self, state, src, dest, capacity):
         change = math.floor(src * self.rate)
         if not math.isnan(capacity):
             change = min(capacity, change)
         return change, change
+
+
+class Formula(Rate):
+    "Evaluate a formula reference multiple nodes."
+    ops = ["+", "-", "*", "/"]
+    
+    def __init__(self, rate):
+        super().__init__(0)
+        self.formula = rate
+        self.elements = self.parse(rate)
+
+    def element_kind(self, string):
+        try:
+            return ("int", int(string))
+        except ValueError:
+            pass
+        try:
+            return ("float", float(string))
+        except ValueError:
+            pass
+
+        if string in self.ops:
+            return ("op", string)
+        return ("variable", string)
+
+    def parse(self, formula):
+        "Parse formula strings, things like `a * 2` and such."
+        ops = ["+", "-", "*", "/"]
+
+        elements = []
+        acc = ""
+        for char in formula.strip():
+            if char == " ":
+                if acc:
+                    elements.append(self.element_kind(acc))
+                    
+                acc = ""
+            elif char in ops:
+                if acc:
+                    elements.append(self.element_kind(acc))
+                elements.append(self.element_kind(char))
+                acc = ""
+            else:
+                acc += char
+        elements.append(self.element_kind(acc))
+        return elements
+
+    def calculate(self, state, src, dest, capacity):
+        acc = None
+        op = None
+        for kind, value in self.elements:
+            if kind == "op":
+                op = value
+                continue
+            
+            if kind == "variable":
+                if value not in state:
+                    raise InvalidFormula(self.formula, "referenced variable '%s' does not exist" % (value,))                
+                value = state[value]
+
+            if acc is None:
+                acc = value
+                continue
+                
+            if acc is not None and op is None:
+                raise InvalidFormula(self.formula, "must have operation between values")
+
+            # if you've reached here, then `op` is specified, `acc` is not None,
+            # and it's time to do some math
+            if op == '/':
+                acc = acc / value
+            elif op == '*':
+                acc = acc * value
+            elif op == '+':
+                acc = acc + value
+            elif op == '-':
+                acc = acc - value
+            else:
+                raise InvalidFormula(self.formula, "unknown operator '%s'" % (op,))
+            op = None
+
+        if op is not None:
+            raise InvalidFormula(self.formula, "unused operation in formula")
+
+        # get into expected format to treat this as a Rate
+        self.rate = acc
+        return super().calculate(state, src, dest, capacity)
+        return 0, 0
 
 
 class State(object):
@@ -107,8 +195,7 @@ class State(object):
         for flow in reversed(self.model.flows):
             source_state = self.state[flow.source.name]
             destination_state = self.state[flow.destination.name]
-            rem_change, add_change = flow.change(
-                source_state, destination_state)
+            rem_change, add_change = flow.change(self.state, source_state, destination_state)
             self.state[flow.source.name] -= rem_change
             deferred.append((flow.destination.name, add_change))
 

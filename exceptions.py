@@ -45,8 +45,17 @@ class InitialIsNegative(IllegalSystemException):
     def __init__(self, initial):
         self.initial = initial
 
-    def __str__(eslf):
+    def __str__(self):
         return "can't specify a negative initial value, specified '%s'" % (self.initial,)
+
+
+class InvalidFormula(IllegalSystemException):
+    def __init__(self, formula, msg):
+        self.formula = formula
+        self.msg = msg
+
+    def __str__(self):
+        return "illegal formula '%s' due to '%s'" % (self.formula, self.msg)
 
 
 class ParseError(ParseException):

@@ -194,14 +194,17 @@ Considering the difference between the `conversion` and `leak`, if the above
 were a `conversion`, then the value of `a` after one round would  be `0`, but if it's
 a `leak`, then the value would be `8`.
 
-## Links
+The final and most advanced kind of flow is the `formula` which can use the
+value of other stocks along with basic arithmetic to represent arbitrarily
+complex relationships (this is a riff on the "link" concept in most system dynamic
+software):
 
-If you want something a bit more sophisticated, you might also want to
-include links between a flow and a stock, for example you might want
-to model the number of recruiters and use that to influence the phone
-screen rate instead of fixing it at a constant value.
+    [a] > b @ e * 2
+     b  > c @ e
+    [d] > e @ 1
 
-Links are... not implemented quite yet.
+In this example, the rate between `a` and `b` is dictated by the value of
+the `e` stock.
 
 ## Error messages
 

@@ -66,3 +66,17 @@ class TestParse(unittest.TestCase):
         final = results[-1]
         self.assertEqual(b_max, final['b'])
         self.assertEqual(a_initial - b_max, final['a'])
+
+    def test_formula_rate(self):
+        m = systems.Model("Maximum")
+        a = m.infinite_stock("a")
+        b = m.stock("b")
+        c = m.stock("c")
+        d = m.stock("d", 3)
+        m.flow(a, b, systems.Formula("d * 2"))
+        m.flow(b, c, systems.Formula("d"))
+
+        results = m.run(rounds=3)
+        final = results[-1]
+        self.assertEqual(12, final['b'])
+        self.assertEqual(6, final['c'])
