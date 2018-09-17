@@ -119,17 +119,20 @@ class TestParseFlow(unittest.TestCase):
     "Test parsing flows."
 
     def test_parse_flow(self):
-        m = systems.Model("TestParseStock")
-        source = m.stock("source")
-        destination = m.stock("destination")
-
         opts = [
             ("1", "Rate", 1),
             ("0.1", "Conversion", 0.1),
             (".1", "Conversion", 0.1),
             (".1, leak", "Leak", 0.1),
         ]
-
+        for txt, kind, value in opts:
+            m = systems.Model("TestParseStock")
+            source = m.stock("source")
+            destination = m.stock("destination")            
+            flow = parse.parse_flow(m, source, destination, txt)
+            self.assertEqual(kind, flow.rate.__class__.__name__)
+            self.assertEqual(value, flow.rate.rate)
+        
     def test_invalid_flows(self):
         m = systems.Model("TestParseStock")
         source = m.stock("source")
