@@ -125,7 +125,8 @@ Which you could... load into a spreadsheet or something to graph!
 ## Specifying stocks
 
 By default stocks start with a value of zero. For example,
-this would have both `a` and `b` would initialize at zero:
+this would have both `a` and `b` would initialize at zero,
+and have no maximum limit:
 
     a > b @ 1
 
@@ -159,6 +160,16 @@ value, e.g. this is illegal:
     b(3) > a    @ 1
 
 You can't initialize `b` twice with different values!
+
+You are also able to specify maximum values for each stock by adding
+a second parameter. You're not able to specify a maximum without specifying
+an initial value, but you can simple use zero for the initial value to
+achieve equivalent behavior:
+
+    a(10) > b(0, 5) @ 1
+
+In the above, `a` has no maximum value, but
+`b` will only have a capacity of 5.
 
 ## Flows
 
