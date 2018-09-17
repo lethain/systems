@@ -87,7 +87,7 @@ to build feedback loops and such!
 
 Then you could run the simulation for 10 rounds:
 
-        cat examples/links.txt | python3 parse.py -r10
+    cat examples/links.txt | python3 parse.py -r10
 
             Recruiters      PhoneScreens    Onsites Offers  Hires   Employees       Departures
     0       10              0               0       0       0       0               0
