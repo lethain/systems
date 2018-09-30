@@ -3,7 +3,7 @@ import unittest
 
 import systems.parse as parse
 from systems.errors import ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues, InitialExceedsMaximum, InitialIsNegative, InvalidFormula
-import systems.systems as systems
+import systems.models
 
 
 EXAMPLE_FULL = """
@@ -96,7 +96,7 @@ class TestParseStock(unittest.TestCase):
             ("test(10, 20) ", "test", 10, 20)
         ]
         for txt, name, val, maximum in opts:
-            m = systems.Model("TestParseStock")
+            m = systems.models.Model("TestParseStock")
             stock = parse.parse_stock(m, txt)
             self.assertEqual(name, stock.name)
             self.assertEqual(val, stock.initial)
@@ -105,12 +105,12 @@ class TestParseStock(unittest.TestCase):
     def test_illegal_maximums(self):
         with self.assertRaises(InitialExceedsMaximum):
             txt = "test(20, 10)"
-            m = systems.Model("TestParseStock")
+            m = systems.models.Model("TestParseStock")
             stock = parse.parse_stock(m, txt)
 
         with self.assertRaises(InitialIsNegative):
             txt = "test(-5, 5)"
-            m = systems.Model("TestParseStock")
+            m = systems.models.Model("TestParseStock")
             stock = parse.parse_stock(m, txt)
 
 
@@ -125,7 +125,7 @@ class TestParseFlow(unittest.TestCase):
             (".1, leak", "Leak", 0.1),
         ]
         for txt, kind, value in opts:
-            m = systems.Model("TestParseStock")
+            m = systems.models.Model("TestParseStock")
             source = m.stock("source")
             destination = m.stock("destination")
             flow = parse.parse_flow(m, source, destination, txt)
@@ -139,7 +139,7 @@ class TestParseFlow(unittest.TestCase):
             ("Source + Source", "Formula"),
         ]
         for txt, kind in opts:
-            m = systems.Model("TestParseStock")
+            m = systems.models.Model("TestParseStock")
             source = m.stock("source")
             destination = m.stock("destination")
             flow = parse.parse_flow(m, source, destination, txt)
@@ -153,14 +153,14 @@ class TestParseFlow(unittest.TestCase):
             "1 3 4",
         ]
         for txt in opts:
-            m = systems.Model("TestParseStock")
+            m = systems.models.Model("TestParseStock")
             source = m.stock("source")
             destination = m.stock("destination")
             with self.assertRaises(InvalidFormula):
                 parse.parse_flow(m, source, destination, txt)
 
     def test_invalid_flows(self):
-        m = systems.Model("TestParseStock")
+        m = systems.models.Model("TestParseStock")
         source = m.stock("source")
         destination = m.stock("destination")
 

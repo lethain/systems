@@ -1,7 +1,7 @@
 import sys
 import argparse
 
-import systems.systems as systems
+import systems.models
 from .errors import ParseException, ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues, DeferLineInfo
 
 
@@ -24,7 +24,7 @@ def parse_stock(model, name):
         infinite = True
 
     value = 0
-    maximum = systems.DEFAULT_MAXIMUM
+    maximum = systems.models.DEFAULT_MAXIMUM
     if name.endswith(')'):
         start_pos = name.rfind('(')
         if start_pos > 0:
@@ -45,8 +45,8 @@ def parse_stock(model, name):
                 exists.initial = value
             else:
                 raise ConflictingValues(name, exists.initial, value)
-        if maximum != systems.DEFAULT_MAXIMUM:
-            if exists.maximum != maximum and exists.maximum == systems.DEFAULT_MAXIMUM:
+        if maximum != systems.models.DEFAULT_MAXIMUM:
+            if exists.maximum != maximum and exists.maximum == systems.models.DEFAULT_MAXIMUM:
                 exists.maximum = maximum
             else:
                 raise ConflictingValues(name, exists.maximum, maximum)
@@ -68,10 +68,10 @@ def parse_flow(model, src, dest, txt):
     try:
         if "." in val:
             val = float(val)
-            rate_class = systems.Conversion
+            rate_class = systems.models.Conversion
         else:
             val = int(val)
-            rate_class = systems.Rate
+            rate_class = systems.models.Rate
     except ValueError:
         pass
 
@@ -79,16 +79,16 @@ def parse_flow(model, src, dest, txt):
     if len(parts) > 1:
         class_str = parts[1].strip()
         if class_str == "leak":
-            rate_class = systems.Leak
+            rate_class = systems.models.Leak
         elif class_str == "conversion":
-            rate_class = systems.Conversion
+            rate_class = systems.models.Conversion
         elif class_str == "rate":
-            rate_class = systems.Rate
+            rate_class = systems.models.Rate
         else:
             raise UnknownFlowType(class_str)
 
     if rate_class is None:
-        rate_class = systems.Formula
+        rate_class = systems.models.Formula
 
     rate = rate_class(val)
     return model.flow(
@@ -96,7 +96,7 @@ def parse_flow(model, src, dest, txt):
 
 
 def parse(txt):
-    m = systems.Model("Parsed")
+    m = systems.models.Model("Parsed")
 
     stocks = []
     by_name = {}

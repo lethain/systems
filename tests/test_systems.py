@@ -2,18 +2,16 @@
 import unittest
 
 from systems.errors import IllegalSourceStock
-
-# TODO: rename systems.systems to models
-import systems.systems as systems
+import systems.models
 
 
 class TestParse(unittest.TestCase):
     def test_stock_maximum_rate(self):
-        m = systems.Model("Maximum")
+        m = systems.models.Model("Maximum")
         a = m.infinite_stock("a")
         b_max = 3
         b = m.stock("b", 0, b_max)
-        m.flow(a, b, systems.Rate(1))
+        m.flow(a, b, systems.models.Rate(1))
         results = m.run()
         for i, result in enumerate(results):
             if i > b_max:
@@ -21,34 +19,34 @@ class TestParse(unittest.TestCase):
 
     def test_illegal_conversion_leak_source(self):
         "You can't apply a Conversion or Leak to an infinite stock."
-        m = systems.Model("Maximum")
+        m = systems.models.Model("Maximum")
         a = m.infinite_stock("a")
         b = m.stock("b")
 
-        rates = [systems.Conversion(0.25), systems.Leak(0.25)]
+        rates = [systems.models.Conversion(0.25), systems.models.Leak(0.25)]
         for rate in rates:
             with self.assertRaises(IllegalSourceStock):
                 m.flow(a, b, rate)
 
     def test_infinite_destination_stock(self):
         "Should allow infinite stocks as destinations stock for all rates."
-        rates = [systems.Rate(5), systems.Conversion(0.25), systems.Leak(0.25)]
+        rates = [systems.models.Rate(5), systems.models.Conversion(0.25), systems.models.Leak(0.25)]
         for rate in rates:
-            m = systems.Model("Maximum")
+            m = systems.models.Model("Maximum")
             a = m.stock("a", 100)
             b = m.infinite_stock("b")
             m.flow(a, b, rate)
             m.run(rounds=3)
 
     def test_stock_maximum_conversion(self):
-        m = systems.Model("Maximum")
+        m = systems.models.Model("Maximum")
         a_initial = 10
         a = m.stock("a", a_initial)
         b_max = 3
         b = m.stock("b", 0, b_max)
         f_rate = 0.5
 
-        m.flow(a, b, systems.Conversion(f_rate))
+        m.flow(a, b, systems.models.Conversion(f_rate))
         results = m.run(rounds=3)
         final = results[-1]
         self.assertEqual(b_max, final['b'])
@@ -58,25 +56,25 @@ class TestParse(unittest.TestCase):
         self.assertEqual(a_expected, final['a'])
 
     def test_stock_maximum_leak(self):
-        m = systems.Model("Maximum")
+        m = systems.models.Model("Maximum")
         a_initial = 10
         a = m.stock("a", a_initial)
         b_max = 3
         b = m.stock("b", 0, b_max)
-        m.flow(a, b, systems.Leak(0.5))
+        m.flow(a, b, systems.models.Leak(0.5))
         results = m.run(rounds=2)
         final = results[-1]
         self.assertEqual(b_max, final['b'])
         self.assertEqual(a_initial - b_max, final['a'])
 
     def test_formula_rate(self):
-        m = systems.Model("Maximum")
+        m = systems.models.Model("Maximum")
         a = m.infinite_stock("a")
         b = m.stock("b")
         c = m.stock("c")
         d = m.stock("d", 3)
-        m.flow(a, b, systems.Formula("d * 2"))
-        m.flow(b, c, systems.Formula("d"))
+        m.flow(a, b, systems.models.Formula("d * 2"))
+        m.flow(b, c, systems.models.Formula("d"))
 
         results = m.run(rounds=3)
         final = results[-1]
