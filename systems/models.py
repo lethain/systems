@@ -145,7 +145,7 @@ class Formula(Rate):
                     raise InvalidFormula(self.formula, "can't start formula with an operator")
                 op = value
                 continue
-            
+
             if acc is False:
                 acc = True
                 continue
@@ -156,7 +156,7 @@ class Formula(Rate):
             if op and kind != "op":
                 acc = True
                 op = None
-                                     
+
         if op is not None:
             raise InvalidFormula(self.formula, "unused operation in formula")
 
@@ -263,6 +263,23 @@ class Model(object):
             s.advance()
             snapshots.append(s.snapshot())
         return snapshots
+
+    def render_html(self, results):
+        rows = ["<table>", "<theader>", "<tr>"]
+        col_stocks = [s for s in self.stocks if s.show]
+        rows += ["<td><strong>Round</strong></td>"]
+        rows += ["<td><strong>%s</strong></td>" % s.name for s in col_stocks]
+        rows += ["</tr>", "</theader>", "<tbody>"]
+
+        for i, snapshot in enumerate(results):
+            row = "<tr><td>%s</td>" % i
+            for j, col in enumerate(col_stocks):
+                num = str(snapshot[col.name])
+                row += "<td>%s</td>" % num
+            row += "</tr>"
+            rows.append(row)
+        rows += ["</tbody>", "</table>"]
+        return "\n".join(rows)
 
     def render(self, results, sep='\t', pad=True):
         "Render results to string from Model run."
