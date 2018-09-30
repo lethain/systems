@@ -42,31 +42,7 @@ From there you could push that output through Graphviz's
 ## Jupyter notebooks
 
 Likely the easiest way to iterate on a model is within a Jupyter notebook.
-Your default setup will look something along the lines of:
-
-    # first cell
-    from systems.parse import parse
-    from systems.viz import as_dot
-    from IPython.core.display import HTML
-
-    # second cell
-    spec = """
-
-    [Candidate] > Prospect    @ 10
-    Prospect    > Screen      @ 0.5
-    """
-    model = parse(spec)
-
-    # third cell to render graphviz
-    as_dot(model)
-
-    # fourth cell to render results in table
-    results = model.run(rounds=10)
-    rendered = model.render_html(results)
-    HTML(rendered)
-
-That should be it! Note that you'll need `systems` version `0.0.2` or higher
-for these functions, so if you run into any issues, please upgrade.)
+See an [example notebook here](./notebooks/hiring.html).
 
 ## Installation
 
