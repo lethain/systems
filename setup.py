@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
         setuptools.setup(
                 name="systems",
-                version="0.0.1",
+                version="0.0.2",
                 author="Will Larson",
                 author_email="lethain@gmail.com",
                 description="Describe and run systems diagrams.",
