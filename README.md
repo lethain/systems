@@ -43,6 +43,8 @@ From there you could push that output through Graphviz's
 
 Likely the easiest way to iterate on a model is within a Jupyter notebook.
 See an [example notebook here](./notebooks/hiring.ipynb).
+[Read this blog post for more installation details](https://lethain.com/systems-jupyter-notebook/).
+
 
 ## Installation
 
