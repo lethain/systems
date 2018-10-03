@@ -2,7 +2,8 @@ import sys
 import argparse
 
 import systems.models
-from .errors import ParseException, ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues, DeferLineInfo
+import systems.lexer as lexer
+from systems.errors import ParseException, ParseError, UnknownFlowType, ConflictingValues, DeferLineInfo
 
 
 def parse_stock(model, name):
@@ -97,37 +98,30 @@ def parse_flow(model, src, dest, txt):
 
 def parse(txt):
     m = systems.models.Model("Parsed")
-
     stocks = []
     by_name = {}
     flows = []
 
-    for n, line in enumerate(txt.split('\n'), 1):
-        line = line.strip()
-        # ignore comments
-        if line == "" or line.startswith("#"):
-            continue
+    tokens = lexer.lex(txt)
+    for _, n, line in tokens:
+        first_stock = None
+        second_stock = None
 
-        try:
-            source_name, rest = line.split(">")
-        except ValueError:
-            raise MissingDelimiter(line, n, ">")
-
-        try:
-            dest_name, args = rest.split("@")
-        except ValueError:
-            raise MissingDelimiter(line, n, "@")
-
-        try:
-            source = parse_stock(m, source_name)
-            dest = parse_stock(m, dest_name)
-            parse_flow(m, source, dest, args)
+        try:        
+            for atom, data in line:
+                if atom == lexer.ATOM_STOCK:
+                    if first_stock is None:
+                        first_stock = parse_stock(m, data)
+                    elif second_stock is None:
+                        second_stock = parse_stock(m, data)
+                elif atom == lexer.ATOM_FLOW:
+                    parse_flow(m, first_stock, second_stock, data)
         except DeferLineInfo as dli:
             dli.line = line
             dli.line_number = n
             raise dli
         except Exception as e:
-            raise ParseError(line, n, e)
+            raise ParseError(line, n, e)        
 
     return m
 

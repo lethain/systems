@@ -8,6 +8,13 @@ by writing a file describing your system:
     Start(10) > Middle @ 2
     Middle    > End    @ 1
 
+You can also define stocks on their own lines, as opposed to implicitly defining
+them within flow definitions:
+
+    Start(10)
+    Start  > Middle @ 2
+    Middle > End
+
 and then are able to evaluate your system (use `--csv` for an
 importable format):
 

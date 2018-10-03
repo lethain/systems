@@ -2,7 +2,7 @@
 import unittest
 
 import systems.parse as parse
-from systems.errors import ParseError, MissingDelimiter, UnknownFlowType, ConflictingValues, InitialExceedsMaximum, InitialIsNegative, InvalidFormula
+from systems.errors import ParseError, UnknownFlowType, ConflictingValues, InitialExceedsMaximum, InitialIsNegative, InvalidFormula
 import systems.models
 
 
@@ -43,17 +43,6 @@ class TestParse(unittest.TestCase):
         self.assertEqual(5, final['b'])
         self.assertEqual(10, final['c'])
 
-    def test_parse_missing_delim(self):
-        txt = "[a] < b @ 25"
-        with self.assertRaises(MissingDelimiter) as md:
-            parse.parse(txt)
-        self.assertEqual('>', md.exception.delimiter)
-
-        txt = "[a] > b"
-        with self.assertRaises(MissingDelimiter) as md:
-            parse.parse(txt)
-        self.assertEqual('@', md.exception.delimiter)
-
     def test_parse_invalid_int_or_float(self):
         txt = """
         c > d @ 1
@@ -75,6 +64,23 @@ class TestParse(unittest.TestCase):
         self.assertEqual('a', cv.exception.name)
         self.assertEqual(10, cv.exception.first)
         self.assertEqual(5, cv.exception.second)
+
+    def test_standalone_stock(self):
+        txt = """
+        a
+        b(2)
+        c(3, 5)
+
+        a > b @ 1
+        b > c @ 2
+        """
+        m = parse.parse(txt)
+        m.run()
+
+        self.assertEqual(0, m.get_stock('a').initial)
+        self.assertEqual(2, m.get_stock('b').initial)
+        self.assertEqual(3, m.get_stock('c').initial)
+        self.assertEqual(5, m.get_stock('c').maximum)
 
 
 class TestParseStock(unittest.TestCase):
@@ -143,7 +149,7 @@ class TestParseFlow(unittest.TestCase):
             source = m.stock("source")
             destination = m.stock("destination")
             flow = parse.parse_flow(m, source, destination, txt)
-            self.assertEqual(kind, flow.rate.__class__.__name__)        
+            self.assertEqual(kind, flow.rate.__class__.__name__)
 
     def test_invalid_formulas(self):
         opts = [

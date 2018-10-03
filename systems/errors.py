@@ -99,15 +99,3 @@ class UnknownFlowType(DeferLineInfo):
     def __str__(self):
         return "line %s has invalid flow type \"%s\": \"%s\"" % (
             self.line_number, self.flow_type, self.line)
-
-
-class MissingDelimiter(ParseError):
-    "Line is missing a delimiter."
-
-    def __init__(self, line, line_number, delimiter):
-        super().__init__(line, line_number)
-        self.delimiter = delimiter
-
-    def __str__(self):
-        return "line %s is missing delimiter '%s': \"%s\"" % (
-            self.line_number, self.delimiter, self.line)

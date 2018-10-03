@@ -1,0 +1,12 @@
+[Candidate]
+Recruiter(5)
+EngRecruiter(1, 10)
+MgrRecruiter(1, 15)
+
+Recruiter > EngRecruiter @ 1
+Recruiter > MgrRecruiter @ 1
+
+[Candidate] > Hire @ Recruiter * 3
+
+Hire > Departure @ 0.1, leak
+Depature > [Departed] @ 1.0
