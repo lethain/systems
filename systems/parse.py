@@ -1,9 +1,13 @@
+import re
 import sys
 import argparse
 
 import systems.models
 import systems.lexer as lexer
 from systems.errors import ParseException, ParseError, UnknownFlowType, ConflictingValues, DeferLineInfo
+
+
+LEGAL_STOCK_NAME = '[a-zA-Z][a-zA-Z0-9_]*'
 
 
 def parse_stock(model, name):
@@ -39,6 +43,11 @@ def parse_stock(model, name):
                 value_str = front
             value = int(value_str)
 
+    # validate names to be "[a-zA-Z][a-zA-Z0-9_]*"
+    if not re.fullmatch(LEGAL_STOCK_NAME, name):
+        raise systems.errors.IllegalStockName(name, LEGAL_STOCK_NAME)
+        
+            
     exists = model.get_stock(name)
     if exists:
         if value != 0:

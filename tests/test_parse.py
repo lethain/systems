@@ -2,7 +2,11 @@
 import unittest
 
 import systems.parse as parse
+import systems.errors
+
+# remove these explicit imports
 from systems.errors import ParseError, UnknownFlowType, ConflictingValues, InitialExceedsMaximum, InitialIsNegative, InvalidFormula
+
 import systems.models
 
 
@@ -90,8 +94,7 @@ class TestParseStock(unittest.TestCase):
         opts = [
             ("[a]", "a", float("+inf"), float("+inf")),
             ("b", "b", 0, float("+inf")),
-            ("[b", "[b", 0, float("+inf")),
-            ("test this", "test this", 0, float("+inf")),
+            ("test_this", "test_this", 0, float("+inf")),
             ("  test ", "test", 0, float("+inf")),
             (" test", "test", 0, float("+inf")),
             ("test(0) ", "test", 0, float("+inf")),
@@ -107,6 +110,19 @@ class TestParseStock(unittest.TestCase):
             self.assertEqual(name, stock.name)
             self.assertEqual(val, stock.initial)
             self.assertEqual(maximum, stock.maximum)
+
+    def test_illegal_names(self):
+        legal = ['A', 'a', 'Best', 'Hiring', 'a1', 'A0', 'A_1']
+        illegal = ['1', '1a', 'a-', 'A-','A+', 'A 3']
+        for name in legal:
+            m = systems.models.Model("TestParseStock")
+            stock = parse.parse_stock(m, name)
+
+        for name in illegal:
+            m = systems.models.Model("TestParseStock")
+            with self.assertRaises(systems.errors.IllegalStockName):
+                stock = parse.parse_stock(m, name)
+
 
     def test_illegal_maximums(self):
         with self.assertRaises(InitialExceedsMaximum):

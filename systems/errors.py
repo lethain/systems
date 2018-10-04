@@ -17,6 +17,16 @@ class IllegalSystemException(SystemsException):
     pass
 
 
+class IllegalStockName(SystemsException):
+    "Illegal stock name specified."
+    def __init__(self, name, allowed):
+        self.name = name
+        self.allowed = allowed
+
+    def __str__(self):
+        return "name '%s' is not a legal stock name, must be of format %s" % (self.name, self.allowed)
+
+
 class IllegalSourceStock(IllegalSystemException):
     "Source can't be used with this Rate."
 
