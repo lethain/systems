@@ -25,12 +25,44 @@ TOKEN_FLOW_DELIMITER = 'flow_delimiter'
 TOKEN_PARAMS = 'params'
 TOKEN_WHOLE = 'whole'
 TOKEN_DECIMAL = 'decimal'
+TOKEN_REFERENCE = 'reference'
 TOKEN_FORMULA = 'formula'
+TOKEN_OP = 'operation'
 TOKEN_COMMENT = 'comment'
 
 LEGAL_STOCK_NAME = '[a-zA-Z][a-zA-Z0-9_]*'
 PARAM_WHOLE = '\-?[0-9]+'
 PARAM_DECIMAL = '[0-9]+\.[0-1]+'
+OPERATIONS = '[\/\+\-\*]'
+
+
+def lex_value(txt):
+    "Lex a single value. One of: WHOLE, DECLINE, REFERENCE."
+    txt = txt.strip()
+    if re.fullmatch(PARAM_WHOLE, txt):
+        return (TOKEN_WHOLE, txt)
+    elif re.fullmatch(PARAM_DECIMAL, txt):
+        return (TOKEN_DECIMAL, txt)
+    else:
+        return (TOKEN_REFERENCE, txt)
+
+
+def lex_formula(txt):
+    tokens = []
+    acc = ""
+    for c in txt.strip() + NEWLINE:
+        if c in (WHITESPACE, NEWLINE):
+            tokens.append(lex_value(acc))
+            acc = ""
+        elif re.fullmatch(OPERATIONS, c):
+            if acc:
+                tokens.append(lex_value(acc))
+                acc = ""
+            tokens.append((TOKEN_OP, c))
+        else:
+            acc += c
+
+    return (TOKEN_FORMULA, tokens)
 
 
 def lex_parameters(txt):
@@ -39,18 +71,9 @@ def lex_parameters(txt):
     elif txt.startswith(START_PARAMETER_SET) and txt.endswith(END_PARAMETER_SET):
         txt = txt[1:-1]
         params = txt.split(',')
-        return (TOKEN_PARAMS, tuple([lex_parameter(x) for x in params]))
+        return (TOKEN_PARAMS, tuple([lex_formula(x) for x in params]))
     else:
         raise systems.errors.InvalidParameters(txt)
-
-def lex_parameter(txt):
-    txt = txt.strip()
-    if re.fullmatch(PARAM_WHOLE, txt):
-        return (TOKEN_WHOLE, txt)
-    elif re.fullmatch(PARAM_DECIMAL, txt):
-        return (TOKEN_DECIMAL, txt)
-    else:
-        return (TOKEN_FORMULA, txt)
 
 def lex_caller(token, txt):
     txt = txt.strip()

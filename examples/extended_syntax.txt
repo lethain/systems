@@ -1,10 +1,10 @@
 [Candidate]
 Recruiter(5)
-EngRecruiter(1, 10)
-MgrRecruiter(1, 15)
+EngRecruiter(1, Recruiter)
+MgrRecruiter(1, Recruiter)
 
-Recruiter > EngRecruiter @ 1
-Recruiter > MgrRecruiter @ 1
+Recruiter > EngRecruiter @ Rate(Recruiter * 2)
+Recruiter > MgrRecruiter @ Rate(Recruiter * 1)
 
 [Candidate] > Hire @ Recruiter * 3
 

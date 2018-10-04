@@ -29,9 +29,9 @@ def build_stock(model, token_tuple):
     maximum = systems.models.DEFAULT_MAXIMUM
 
     if len(params) > 0:
-        initial = build_value(params[0])
+        initial = params[0]
     if len(params) > 1:
-        maximum = build_value(params[1])
+        maximum = params[1]
 
     exists = model.get_stock(name)
     if exists:
@@ -72,10 +72,8 @@ def build_flow(model, src, dest, token):
         param_type, param_value = params[0]
         if param_type == lexer.TOKEN_DECIMAL:
             rate_class = systems.models.Conversion        
-        elif param_type == lexer.TOKEN_WHOLE:
-            rate_class = systems.models.Rate
         else:
-            rate_class = systems.models.Formula
+            rate_class = systems.models.Rate
     else:
         raise UnknownFlowType(class_str)
 

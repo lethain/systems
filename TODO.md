@@ -1,8 +1,8 @@
 
 Some stuff to consider doing:
 
-* formulas should support more sophisticated math
-* formula should be usable in more places, including initial values and maximums
+* formulas should support parentheses and do proper operation sequencing
+* support a whitelist of functions being called in formulas, e.g. max, min, etc
 * support for fair-weighting of flows if there are more consumers of a flow
     than there is capacity in the flow to support (e.g. round robin capacity
     across the outflows until capacity is consumed)

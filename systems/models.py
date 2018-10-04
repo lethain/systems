@@ -1,6 +1,6 @@
 import math
 
-from .errors import IllegalSourceStock, InitialIsNegative, InitialExceedsMaximum, InvalidFormula
+from systems.errors import IllegalSourceStock, InitialIsNegative, InitialExceedsMaximum, InvalidFormula
 
 
 DEFAULT_MAXIMUM = float("+inf")
@@ -12,14 +12,6 @@ class Stock(object):
         self.initial = initial
         self.show = show
         self.maximum = maximum
-        self.validate()
-
-    def validate(self):
-        if self.initial < 0:
-            raise InitialIsNegative(self.initial)
-
-        if self.initial > self.maximum:
-            raise InitialExceedsMaximum(self.initial, self.maximum)
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)
@@ -42,12 +34,16 @@ class Flow(object):
 
 
 class Rate(object):
-    def __init__(self, rate):
-        self.rate = rate
+    def __init__(self, formula):
+        self.formula = formula
 
+    def eval_formula(self, state):
+        # foooooo
+    
     def calculate(self, state, src, dest, capacity):
-        if src - self.rate >= 0:
-            change = self.rate if src - self.rate > 0 else src
+        evaluated = self.eval_formula(state)
+        if src - evaluated >= 0:
+            change = evaluated if src - evaluated > 0 else src
             change = min(capacity, change)
             return change, change
         return 0, 0
@@ -57,7 +53,7 @@ class Rate(object):
         return
 
     def __repr__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.rate)
+        return "%s(%s)" % (self.__class__.__name__, self.formula)
 
 
 class Conversion(Rate):
@@ -67,9 +63,9 @@ class Conversion(Rate):
         if dest == float("+inf") or capacity == float("+inf"):
             max_src_change = src
         else:
-            max_src_change = max(0, math.floor((capacity - dest) / self.rate))
+            max_src_change = max(0, math.floor((capacity - dest) / self.formula))
 
-        change = math.floor(max_src_change * self.rate)
+        change = math.floor(max_src_change * self.formula)
         if change == 0:
             return 0, 0
         return max_src_change, change
@@ -83,7 +79,7 @@ class Leak(Conversion):
     "A stock leaks a percentage of its value into another."
 
     def calculate(self, state, src, dest, capacity):
-        change = math.floor(src * self.rate)
+        change = math.floor(src * self.formula)
         if not math.isnan(capacity):
             change = min(capacity, change)
         return change, change
@@ -93,24 +89,9 @@ class Formula(Rate):
     "Evaluate a formula reference multiple nodes."
     ops = ["+", "-", "*", "/"]
 
-    def __init__(self, rate):
+    def __init__(self, formula):
         super().__init__(0)
-        self.formula = rate
-        self.elements = self.parse(rate)
-
-    def element_kind(self, string):
-        try:
-            return ("int", int(string))
-        except ValueError:
-            pass
-        try:
-            return ("float", float(string))
-        except ValueError:
-            pass
-
-        if string in self.ops:
-            return ("op", string)
-        return ("variable", string)
+        self.formula = formula
 
     def parse(self, formula):
         "Parse formula strings, things like `a * 2` and such."
@@ -194,7 +175,7 @@ class Formula(Rate):
             op = None
 
         # get into expected format to treat this as a Rate
-        self.rate = acc
+        self.formula = acc
         return super().calculate(state, src, dest, capacity)
         return 0, 0
 
@@ -256,7 +237,23 @@ class Model(object):
         self.flows.append(f)
         return f
 
+    def validate(self):
+        for stock in self.stocks:
+            self.validate_formula(stock.initial)
+            self.validate_formula(stock.maximum)
+
+        for flow in self.flows:
+            pass
+        
+
+    def validate_formula(self, formula):
+        pass
+
     def run(self, rounds=10):
+        self.validate()
+        
+        
+        
         s = State(self)
         snapshots = [s.snapshot()]
         for i in range(rounds):
