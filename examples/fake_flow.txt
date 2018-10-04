@@ -1,2 +1,2 @@
-b > d @ 5, leaking
-d > e @ 5, fake
+b > d @ Invalid(5)
+d > e @ Fake(5)

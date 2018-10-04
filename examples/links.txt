@@ -5,5 +5,5 @@ PhoneScreens > Onsites      @ 0.5
 Onsites      > Offers       @ 0.5
 Offers       > Hires        @ 0.5
 Hires        > Employees    @ 1.0
-Employees    > Departures   @ 0.1, leak
+Employees    > Departures   @ Leak(0.1)
 Departures   > [Departed]   @ 1.0

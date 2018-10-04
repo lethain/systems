@@ -13,5 +13,5 @@ Offers       > Hires        @ 0.5
 Hires        > Employees(5) @ 1.0
 
 # specify leak to avoid a destructive conversion
-Employees    > Departures   @ 0.1, leak
+Employees    > Departures   @ Leak(0.1)
 Departures   > [Departed]   @ 1.0

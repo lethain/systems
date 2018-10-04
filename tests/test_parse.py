@@ -11,9 +11,11 @@ import systems.models
 
 
 EXAMPLE_FULL = """
+# ignore this comment
+# ignore this comment too
 [a] > b @ 25
 b > c @ 0.5
-c > d @ 0.5, leak
+c > d @ Leak(0.5)
 d > [e] @ 1.0
 """
 
@@ -142,9 +144,10 @@ class TestParseFlow(unittest.TestCase):
     def test_parse_flow(self):
         opts = [
             ("1", "Rate", 1),
+            ("Rate(1)", "Rate", 1),            
             ("0.1", "Conversion", 0.1),
-            (".1", "Conversion", 0.1),
-            (".1, leak", "Leak", 0.1),
+            ("Conversion(0.1)", "Conversion", 0.1),            
+            ("leak(0.1)", "Leak", 0.1),            
         ]
         for txt, kind, value in opts:
             m = systems.models.Model("TestParseStock")

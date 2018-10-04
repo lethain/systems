@@ -94,7 +94,7 @@ for a rapidly growing company, you could do so via:
      Onsites      > Offers       @ 0.5
      Offers       > Hires        @ 0.5
      Hires        > Employees    @ 1.0
-     Employees    > Departures   @ 0.1, leak
+     Employees    > Departures   @ Leak(0.1)
      Departures   > [Departed]   @ 1.0
 
 Note that you're able to refer to the value of `Recruiters` when specifying
@@ -183,7 +183,7 @@ For example, moving two units per round between `a` and `b`:
 
     # these are equivalent
     a > b @ 2
-    a > b @ 2, leak
+    a > b @ Rate(2)
 
 Up to two units will be transfered from `a` to `b` each round.
 
@@ -193,8 +193,7 @@ against the conversion rate, adding the result to the next flow.
 
     # these are equivalent
     a(10) > b @ 0.5
-    a(10) > b @ 0.5, conversion
-
+    a(10) > b @ Conversion(0.5)
 
 The above would multiple `0.5` against `10` and move `5` units to `b`,
 with the other `5` units being lost to the conversion rate (e.g. disappearing).
@@ -205,7 +204,7 @@ The third kind of flow is the `leak`, which combines properties of the
 `rate` and `conversion` flows. It moves a fixed percentage of the source
 flow into the destination flow, while leaving the remainder intact.
 
-    a(10) > b @ 0.2, leak
+    a(10) > b @ Leak(0.2)
 
 Considering the difference between the `conversion` and `leak`, if the above
 were a `conversion`, then the value of `a` after one round would  be `0`, but if it's
