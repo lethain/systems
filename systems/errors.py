@@ -39,25 +39,6 @@ class IllegalSourceStock(IllegalSystemException):
             self.source, self.rate)
 
 
-class InitialExceedsMaximum(IllegalSystemException):
-    "Initial value for stock can't be greater than maximum value."
-    def __init__(self, initial, maximum):
-        self.initial = initial
-        self.maximum = maximum
-
-    def __str__(self):
-        return "can't specify an initial value '%s' greater than maximum value '%s'" % (self.initial, self.maximum)
-
-
-class InitialIsNegative(IllegalSystemException):
-    "Stock's initial value can't be less than zero."
-    def __init__(self, initial):
-        self.initial = initial
-
-    def __str__(self):
-        return "can't specify a negative initial value, specified '%s'" % (self.initial,)
-
-
 class InvalidFormula(IllegalSystemException):
     def __init__(self, formula, msg):
         self.formula = formula

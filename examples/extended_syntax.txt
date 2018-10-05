@@ -9,4 +9,4 @@ Recruiter > MgrRecruiter @ Rate(Recruiter * 1)
 [Candidate] > Hire @ Recruiter * 3
 
 Hire > Departure @ Leak(0.1)
-Depature > [Departed] @ Rate(1.0)
+Departure > [Departed] @ 1.0

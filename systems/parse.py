@@ -7,16 +7,6 @@ import systems.lexer as lexer
 from systems.errors import ParseException, ParseError, UnknownFlowType, ConflictingValues, DeferLineInfo
 
 
-def build_value(param):
-    token, value = param
-    if token == lexer.TOKEN_WHOLE:
-        return int(value)
-    elif token == lexer.TOKEN_DECIMAL:
-        return float(value)
-    else:
-        return value
-
-
 def build_stock(model, token_tuple):
     "Build stock from the lexed components."
     token, name, params_token = token_tuple
@@ -25,9 +15,11 @@ def build_stock(model, token_tuple):
     if token == lexer.TOKEN_STOCK_INFINITE:
         return model.infinite_stock(name)
 
-    initial = 0
+    default_initial = lexer.lex_formula('0')
+    initial = default_initial[:]
     maximum = systems.models.DEFAULT_MAXIMUM
 
+    print(["build_stock", params])
     if len(params) > 0:
         initial = params[0]
     if len(params) > 1:
@@ -35,8 +27,8 @@ def build_stock(model, token_tuple):
 
     exists = model.get_stock(name)
     if exists:
-        if initial != 0:
-            if exists.initial != initial and exists.initial == 0:
+        if initial != default_initial:
+            if exists.initial_lex != initial and exists.initial_lex == default_initial:
                 exists.initial = initial
             else:
                 raise ConflictingValues(name, exists.initial, initial)
@@ -45,7 +37,6 @@ def build_stock(model, token_tuple):
                 exists.maximum = maximum
             else:
                 raise ConflictingValues(name, exists.maximum, maximum)
-        exists.validate()
         return exists
 
     return model.stock(name, initial, maximum)
@@ -68,16 +59,17 @@ def build_flow(model, src, dest, token):
         rate_class = systems.models.Conversion
     elif class_str == "rate":
         rate_class = systems.models.Rate
-    elif class_str == '' and len(params) == 1:
-        param_type, param_value = params[0]
-        if param_type == lexer.TOKEN_DECIMAL:
-            rate_class = systems.models.Conversion        
+    elif class_str == '':
+        print(["oook", params[0][1]])
+        if len(params[0][1]) == 2 and params[0][1][0] == lexer.TOKEN_DECIMAL:
+            rate_class = systems.models.Conversion
         else:
             rate_class = systems.models.Rate
     else:
         raise UnknownFlowType(class_str)
 
-    rate = rate_class(*[build_value(x) for x in params])
+    rate = rate_class(*params)
+    print(["RATE", rate_class, token])
     return model.flow(src, dest, rate)
 
 

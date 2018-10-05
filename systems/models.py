@@ -1,18 +1,52 @@
 import math
 
-from systems.errors import IllegalSourceStock, InitialIsNegative, InitialExceedsMaximum, InvalidFormula
-
+from systems.errors import IllegalSourceStock, InvalidFormula
+import systems.lexer
 
 DEFAULT_MAXIMUM = float("+inf")
 
 
-class Stock(object):
-    def __init__(self, name, initial=0, maximum=DEFAULT_MAXIMUM, show=True):
-        self.name = name
-        self.initial = initial
-        self.show = show
-        self.maximum = maximum
+def eval_formula(formula, state):
+    if type(formula) in (int, float):
+        return formula
 
+    if len(formula) == 0:
+        return 0
+
+    #if formula[0] == systems.lexer.TOKEN_FORMULA:
+    #    formula = formula[1:]
+    print(['eval', len(formula), formula])
+
+    
+    buf = None
+    _, tokens = formula    
+    for token in tokens:
+        print(["token", token])
+        kind, val_str = token
+        if buf is None:
+            if kind == systems.lexer.TOKEN_WHOLE:
+                buf = int(val_str)
+            elif kind  == systems.lexer.TOKEN_DECIMAL:
+                buf = float(val_str)
+                
+    return buf
+
+
+class Stock(object):
+    def __init__(self, name, initial, maximum=DEFAULT_MAXIMUM, show=True):
+        self.name = name
+        self.initial_lex = initial
+        self.maximum_lex = maximum
+        self.show = show
+
+    def initial(self, state):
+        evaluated = eval_formula(self.initial_lex, state)
+        return evaluated if evaluated else 0
+
+    def maximum(self, state):
+        evaluated = eval_formula(self.maximum_lex, state)
+        return evaluated if evaluated else DEFAULT_MAXIMUM
+        
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)
 
@@ -25,7 +59,8 @@ class Flow(object):
         self.rate.validate_source(self.source)
 
     def change(self, state, source_state, dest_state):
-        capacity = self.destination.maximum - dest_state
+        print(["change", self.destination.maximum(state), dest_state])
+        capacity = self.destination.maximum(state) - dest_state
         return self.rate.calculate(state, source_state, dest_state, capacity)
 
     def __repr__(self):
@@ -36,12 +71,10 @@ class Flow(object):
 class Rate(object):
     def __init__(self, formula):
         self.formula = formula
-
-    def eval_formula(self, state):
-        # foooooo
     
     def calculate(self, state, src, dest, capacity):
-        evaluated = self.eval_formula(state)
+        print([self.__class__.__name__, self.formula])
+        evaluated = eval_formula(self.formula, state)
         if src - evaluated >= 0:
             change = evaluated if src - evaluated > 0 else src
             change = min(capacity, change)
@@ -60,12 +93,13 @@ class Conversion(Rate):
     "Converts a stock into another at a discount rate."
 
     def calculate(self, state, src, dest, capacity):
+        evaluated = eval_formula(self.formula, state)
         if dest == float("+inf") or capacity == float("+inf"):
             max_src_change = src
         else:
-            max_src_change = max(0, math.floor((capacity - dest) / self.formula))
+            max_src_change = max(0, math.floor((capacity - dest) / evaluated))
 
-        change = math.floor(max_src_change * self.formula)
+        change = math.floor(max_src_change * evaluated)
         if change == 0:
             return 0, 0
         return max_src_change, change
@@ -79,13 +113,14 @@ class Leak(Conversion):
     "A stock leaks a percentage of its value into another."
 
     def calculate(self, state, src, dest, capacity):
-        change = math.floor(src * self.formula)
+        evaluated = eval_formula(self.formula, state)        
+        change = math.floor(src * evaluated)
         if not math.isnan(capacity):
             change = min(capacity, change)
         return change, change
 
 
-class Formula(Rate):
+class DeprecatedFormula(Rate):
     "Evaluate a formula reference multiple nodes."
     ops = ["+", "-", "*", "/"]
 
@@ -185,7 +220,8 @@ class State(object):
         self.model = model
         self.state = {}
         for stock in self.model.stocks:
-            self.state[stock.name] = stock.initial
+            # this is a shitty hack
+            self.state[stock.name] = stock.initial({})
 
     def advance(self):
         deferred = []
@@ -238,21 +274,16 @@ class Model(object):
         return f
 
     def validate(self):
+        """
         for stock in self.stocks:
             self.validate_formula(stock.initial)
             self.validate_formula(stock.maximum)
 
         for flow in self.flows:
             pass
-        
-
-    def validate_formula(self, formula):
-        pass
-
+        """
     def run(self, rounds=10):
-        self.validate()
-        
-        
+        # self.validate()
         
         s = State(self)
         snapshots = [s.snapshot()]

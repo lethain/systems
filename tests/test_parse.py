@@ -5,7 +5,7 @@ import systems.parse as parse
 import systems.errors
 
 # remove these explicit imports
-from systems.errors import ParseError, UnknownFlowType, ConflictingValues, InitialExceedsMaximum, InitialIsNegative, InvalidFormula
+from systems.errors import ParseError, UnknownFlowType, ConflictingValues, InvalidFormula
 
 import systems.models
 
@@ -110,8 +110,8 @@ class TestParseStock(unittest.TestCase):
             m = systems.models.Model("TestParseStock")
             stock = parse.parse_stock(m, txt)
             self.assertEqual(name, stock.name)
-            self.assertEqual(val, stock.initial)
-            self.assertEqual(maximum, stock.maximum)
+            self.assertEqual(val, stock.initial({}))
+            self.assertEqual(maximum, stock.maximum({}))
 
     def test_illegal_names(self):
         legal = ['A', 'a', 'Best', 'Hiring', 'a1', 'A0', 'A_1']
@@ -124,18 +124,6 @@ class TestParseStock(unittest.TestCase):
             m = systems.models.Model("TestParseStock")
             with self.assertRaises(systems.errors.IllegalStockName):
                 stock = parse.parse_stock(m, name)
-
-
-    def test_illegal_maximums(self):
-        with self.assertRaises(InitialExceedsMaximum):
-            txt = "test(20, 10)"
-            m = systems.models.Model("TestParseStock")
-            stock = parse.parse_stock(m, txt)
-
-        with self.assertRaises(InitialIsNegative):
-            txt = "test(-5, 5)"
-            m = systems.models.Model("TestParseStock")
-            stock = parse.parse_stock(m, txt)
 
 
 class TestParseFlow(unittest.TestCase):
@@ -155,13 +143,13 @@ class TestParseFlow(unittest.TestCase):
             destination = m.stock("destination")
             flow = parse.parse_flow(m, source, destination, txt)
             self.assertEqual(kind, flow.rate.__class__.__name__)
-            self.assertEqual(value, flow.rate.rate)
+            self.assertEqual(str(value), flow.rate.formula[1][0][1])
 
     def test_parse_formula(self):
         opts = [
-            ("Source * 2", "Formula"),
-            ("Source * Source", "Formula"),
-            ("Source + Source", "Formula"),
+            ("Source * 2", "Rate"),
+            ("Source * Source", "Rate"),
+            ("Source + Source", "Rate"),
         ]
         for txt, kind in opts:
             m = systems.models.Model("TestParseStock")

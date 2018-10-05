@@ -3,6 +3,7 @@ import unittest
 
 from systems.errors import IllegalSourceStock
 import systems.models
+import systems.parse
 
 
 class TestParse(unittest.TestCase):
@@ -73,8 +74,9 @@ class TestParse(unittest.TestCase):
         b = m.stock("b")
         c = m.stock("c")
         d = m.stock("d", 3)
-        m.flow(a, b, systems.models.Formula("d * 2"))
-        m.flow(b, c, systems.models.Formula("d"))
+
+        systems.parse.parse_flow(m, a, b, "d * 2")
+        systems.parse.parse_flow(m, b, c, "d")        
 
         results = m.run(rounds=3)
         final = results[-1]
