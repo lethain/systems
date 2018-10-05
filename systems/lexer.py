@@ -14,9 +14,9 @@ FLOW_DELIMITER = '@'
 COMMENT = '#'
 
 TOKEN_WHITESPACE = 'whitespace'
+TOKEN_LINES = 'lines'
 TOKEN_LINE = 'line'
 TOKEN_NAME = 'name'
-TOKEN_VALUE = 'value'
 TOKEN_STOCK = 'stock'
 TOKEN_STOCK_INFINITE = 'infinite_stock'
 TOKEN_FLOW = 'flow'
@@ -80,12 +80,12 @@ def lex_caller(token, txt):
     match = re.match(LEGAL_STOCK_NAME, txt)
     if not match:
         raise systems.errors.IllegalStockName(txt, LEGAL_STOCK_NAME)
-    
+
     name = match.group(0)
     rest = txt[match.end(0):]
     if rest != "" and not (rest.startswith(START_PARAMETER_SET) and rest.endswith(END_PARAMETER_SET)):
         raise systems.errors.IllegalStockName(txt, LEGAL_STOCK_NAME)
-    
+
     params = lex_parameters(rest)
     return (token, name, params)
 
@@ -105,7 +105,7 @@ def lex_flow(txt):
 
     txt = txt.strip()
     if txt.endswith(END_PARAMETER_SET):
-        
+
         return lex_caller(TOKEN_FLOW, txt)
     else:
         return (TOKEN_FLOW, '', lex_parameters('('+txt+')'))
@@ -167,14 +167,47 @@ def lex(txt):
             continue
         else:
             char_buff += c
-    return tokens
+    return (TOKEN_LINES, tokens)
+
+
+def readable(token, class_str=None):
+    "Create human readable format of lexed tokens."
+    kind = token[0]
+    if kind == TOKEN_WHITESPACE:
+        return WHITESPACE
+    elif kind == TOKEN_LINES:
+        lines = token[1]
+        return "\n".join([readable(x) for x in lines])
+    elif kind == TOKEN_FORMULA:
+        return " ".join([readable(x) for x in token[1]])    
+    elif kind == TOKEN_LINE:
+        line_tokens = token[2]
+        return " ".join([readable(x) for x in line_tokens])
+    elif kind in [TOKEN_FLOW_DIRECTION, TOKEN_FLOW_DELIMITER, TOKEN_OP, TOKEN_COMMENT, TOKEN_DECIMAL, TOKEN_WHOLE, TOKEN_REFERENCE]:
+        return token[1]    
+    elif kind == TOKEN_PARAMS:
+        params = token[1]
+        if len(params) == 0:
+            return ""
+        joined_params = ", ".join([readable(x) for x in params])
+        if not class_str:
+            return joined_params
+        return "(%s)" % joined_params
+    elif kind == TOKEN_STOCK_INFINITE:
+        return START_INFINITE_STOCK + token[1] + END_INFINITE_STOCK    
+    elif kind in [TOKEN_STOCK, TOKEN_FLOW]:
+        _, class_str, params = token
+        return "%s%s" % (class_str, readable(params, class_str))
+    else:
+        return "[unexpected token: '%s']" % (token,)
 
 
 def main():
     txt = sys.stdin.read()
-    tokens = lex(txt)
-    for token in tokens:
+    lexed = lex(txt)
+    for token in lexed[1]:
         print(token)
+    print (readable(lexed))
 
 
 if __name__ == "__main__":

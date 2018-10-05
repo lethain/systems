@@ -32,6 +32,27 @@ def eval_formula(formula, state):
     return buf
 
 
+class Formula(object):
+    """
+    Formulas are the core unit of computation in models,
+    and are also serve as the interface between lexed formula
+    definitions and the underlying models.
+    """
+    
+    def __init__(self, definition):
+        if type(definition) is str:
+            pass
+
+        self.lexed = pass
+
+    def humanized(self):
+        "Human readable representation of a Formula."
+        
+
+    
+    
+
+
 class Stock(object):
     def __init__(self, name, initial, maximum=DEFAULT_MAXIMUM, show=True):
         self.name = name
