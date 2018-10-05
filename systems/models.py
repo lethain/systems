@@ -6,32 +6,6 @@ import systems.lexer
 DEFAULT_MAXIMUM = float("+inf")
 
 
-def eval_formula(formula, state):
-    if type(formula) in (int, float):
-        return formula
-
-    if len(formula) == 0:
-        return 0
-
-    #if formula[0] == systems.lexer.TOKEN_FORMULA:
-    #    formula = formula[1:]
-    print(['eval', len(formula), formula])
-
-    
-    buf = None
-    _, tokens = formula    
-    for token in tokens:
-        print(["token", token])
-        kind, val_str = token
-        if buf is None:
-            if kind == systems.lexer.TOKEN_WHOLE:
-                buf = int(val_str)
-            elif kind  == systems.lexer.TOKEN_DECIMAL:
-                buf = float(val_str)
-                
-    return buf
-
-
 class Formula(object):
     """
     Formulas are the core unit of computation in models,
@@ -39,34 +13,57 @@ class Formula(object):
     definitions and the underlying models.
     """
     
-    def __init__(self, definition):
+    def __init__(self, definition, default=0):
         if type(definition) is str:
-            pass
+            definition = systems.lexer.lex_formula(definition)
+        self.lexed = definition
+        self.default = default
 
-        self.lexed = pass
+    def references(self):
+        "Return list of all references in formula."
+        refs = []
+        if type(self.lexed) == list:
+            for kind, val in self.lexed[1]:
+                if kind == systems.lexer.TOKEN_REFERENCE:
+                    refs.append(val)
+        return refs
 
-    def humanized(self):
-        "Human readable representation of a Formula."
+    def compute(self, state=None):
+        if state is None:
+            state = {}
+
+        # HACK: remove this later and fix things up
+        if type(self.lexed) in (int, float):
+            return self.lexed
+
+        # TODO: probably empty formulas should be rejected earlier
+        # and it shouldn't be possible to reach this conditional
+        if len(self.lexed) == 0:
+            return 0
         
+        buf = None
+        _, tokens = self.lexed
+        for token in tokens:
+            kind, val_str = token
+            if buf is None:
+                if kind == systems.lexer.TOKEN_WHOLE:
+                    buf = int(val_str)
+                elif kind  == systems.lexer.TOKEN_DECIMAL:
+                    buf = float(val_str)
 
-    
-    
+        return buf if buf else self.default
+
+    def __str__(self):
+        "Human readable representation of a Formula."
+        return systems.lexer.readable(self.lexed)
 
 
 class Stock(object):
     def __init__(self, name, initial, maximum=DEFAULT_MAXIMUM, show=True):
         self.name = name
-        self.initial_lex = initial
-        self.maximum_lex = maximum
+        self.initial = Formula(initial, 0)
+        self.maximum = Formula(maximum, DEFAULT_MAXIMUM)
         self.show = show
-
-    def initial(self, state):
-        evaluated = eval_formula(self.initial_lex, state)
-        return evaluated if evaluated else 0
-
-    def maximum(self, state):
-        evaluated = eval_formula(self.maximum_lex, state)
-        return evaluated if evaluated else DEFAULT_MAXIMUM
         
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)
@@ -80,8 +77,7 @@ class Flow(object):
         self.rate.validate_source(self.source)
 
     def change(self, state, source_state, dest_state):
-        print(["change", self.destination.maximum(state), dest_state])
-        capacity = self.destination.maximum(state) - dest_state
+        capacity = self.destination.maximum.compute(state) - dest_state
         return self.rate.calculate(state, source_state, dest_state, capacity)
 
     def __repr__(self):
@@ -91,11 +87,10 @@ class Flow(object):
 
 class Rate(object):
     def __init__(self, formula):
-        self.formula = formula
+        self.formula = Formula(formula)
     
     def calculate(self, state, src, dest, capacity):
-        print([self.__class__.__name__, self.formula])
-        evaluated = eval_formula(self.formula, state)
+        evaluated = self.formula.compute(state)
         if src - evaluated >= 0:
             change = evaluated if src - evaluated > 0 else src
             change = min(capacity, change)
@@ -114,7 +109,7 @@ class Conversion(Rate):
     "Converts a stock into another at a discount rate."
 
     def calculate(self, state, src, dest, capacity):
-        evaluated = eval_formula(self.formula, state)
+        evaluated = self.formula.compute(state)
         if dest == float("+inf") or capacity == float("+inf"):
             max_src_change = src
         else:
@@ -126,7 +121,7 @@ class Conversion(Rate):
         return max_src_change, change
 
     def validate_source(self, source_stock):
-        if source_stock.initial == float("+inf"):
+        if source_stock.initial.compute() == float("+inf"):
             raise IllegalSourceStock(self, source_stock)
 
 
@@ -134,7 +129,7 @@ class Leak(Conversion):
     "A stock leaks a percentage of its value into another."
 
     def calculate(self, state, src, dest, capacity):
-        evaluated = eval_formula(self.formula, state)        
+        evaluated = self.formula.compute(state)
         change = math.floor(src * evaluated)
         if not math.isnan(capacity):
             change = min(capacity, change)
@@ -241,8 +236,13 @@ class State(object):
         self.model = model
         self.state = {}
         for stock in self.model.stocks:
-            # this is a shitty hack
-            self.state[stock.name] = stock.initial({})
+            refs = stock.initial.references()
+            # TODO: add support for references in initial formula,
+            # but for now let's hard reject to avoid it faily in
+            # unexpected ways
+            if len(refs) > 0:
+                raise ReferencesInInitialFormula(stock.initial)
+            self.state[stock.name] = stock.initial.compute()
 
     def advance(self):
         deferred = []

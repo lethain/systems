@@ -1,5 +1,6 @@
 import re
 import sys
+import traceback
 import argparse
 
 import systems.models
@@ -11,7 +12,7 @@ def build_stock(model, token_tuple):
     "Build stock from the lexed components."
     token, name, params_token = token_tuple
     _, params = params_token
-    
+
     if token == lexer.TOKEN_STOCK_INFINITE:
         return model.infinite_stock(name)
 
@@ -19,7 +20,6 @@ def build_stock(model, token_tuple):
     initial = default_initial[:]
     maximum = systems.models.DEFAULT_MAXIMUM
 
-    print(["build_stock", params])
     if len(params) > 0:
         initial = params[0]
     if len(params) > 1:
@@ -60,7 +60,6 @@ def build_flow(model, src, dest, token):
     elif class_str == "rate":
         rate_class = systems.models.Rate
     elif class_str == '':
-        print(["oook", params[0][1]])
         if len(params[0][1]) == 2 and params[0][1][0] == lexer.TOKEN_DECIMAL:
             rate_class = systems.models.Conversion
         else:
@@ -69,12 +68,11 @@ def build_flow(model, src, dest, token):
         raise UnknownFlowType(class_str)
 
     rate = rate_class(*params)
-    print(["RATE", rate_class, token])
     return model.flow(src, dest, rate)
 
 
 def parse_flow(model, src, dest, txt):
-    "Parse flow from raw text. Used primarily for testing or iterative parsing."    
+    "Parse flow from raw text. Used primarily for testing or iterative parsing."
     return build_flow(model, src, dest, lexer.lex_flow(txt))
 
 
@@ -84,8 +82,9 @@ def parse(txt):
     by_name = {}
     flows = []
 
-    tokens = lexer.lex(txt)
-    for _, n, line in tokens:
+    _, tokens = lexer.lex(txt)
+    for token in tokens:
+        _, n, line = token
         first_stock = None
         second_stock = None
 
@@ -99,10 +98,12 @@ def parse(txt):
                 elif token[0] == lexer.TOKEN_FLOW:
                     build_flow(m, first_stock, second_stock, token)
         except DeferLineInfo as dli:
+            traceback.print_exc(file=sys.stdout)
             dli.line = line
             dli.line_number = n
             raise dli
         except Exception as e:
+            traceback.print_exc(file=sys.stdout)
             raise ParseError(line, n, e)
 
     return m

@@ -38,7 +38,20 @@ class IllegalSourceStock(IllegalSystemException):
         return "stock '%s' can be used as source for rate '%s'" % (
             self.source, self.rate)
 
+class FormulaError(IllegalSystemException):
+    "Parent class for formula exceptions."
+    def __init__(self, formula):
+        self.formula = formula
 
+    def __str__(self):
+        return "%s for formula '%s'" % (self.__class__.__name__, self.formula)
+
+
+class ReferencesInInitialFormula(FormulaError):
+    "Can't have references in initial formula."
+    pass
+
+    
 class InvalidFormula(IllegalSystemException):
     def __init__(self, formula, msg):
         self.formula = formula

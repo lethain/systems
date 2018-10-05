@@ -4,6 +4,11 @@ Some stuff to consider doing:
 * move systems.lexer.readable into systems.formatter and add a script
     for formatting system definitions properly (along lines of pep8
     or gofmt). Also add some basic tests for that functionality.
+* need to build a dependency graph across variables, to figure out
+    whether a given system is deterministic and reject if it isn't.
+    the current handling of complex initial values is quite jank,
+    maybe jank enough that we should explicitly reject them until
+    this work is done
 * formulas should support parentheses and do proper operation sequencing
 * support a whitelist of functions being called in formulas, e.g. max, min, etc
 * support for fair-weighting of flows if there are more consumers of a flow
