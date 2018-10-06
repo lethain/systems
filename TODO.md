@@ -1,9 +1,6 @@
 
 Some stuff to consider doing:
 
-* add support for 'inf' as infinity, which will make it possible to
-    specify infinite stocks without special syntax, but also allow
-    removing special-casing for handling infinity in Formula
 * make systems.simple which provides similar interface to systems.model
     but lets you pass in floats, ints or strings instead of Formula,
     and then make sure system.model only supports formulas

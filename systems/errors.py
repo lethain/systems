@@ -95,13 +95,17 @@ class ConflictingValues(DeferLineInfo):
     "Stock intialized with multiple distinct values."
 
     def __init__(self, name, first, second):
+        super().__init__()
         self.name = name
         self.first = first
         self.second = second
 
     def __str__(self):
-        return "line %s initializes %s with conflict value %s (was %s): \"%s\"" % (
-            self.line_number, self.name, self.second, self.first, self.line)
+        if self.line_number or self.line:
+            return "line %s initializes %s with conflict value %s (was %s): \"%s\"" % (
+                self.line_number, self.name, self.second, self.first, self.line)
+        else:
+            return "'%s' initialized with conflicting value %s (was %s)" % (self.name, self.second, self.first)
 
 
 class UnknownFlowType(DeferLineInfo):

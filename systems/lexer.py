@@ -12,6 +12,7 @@ END_PARAMETER_SET = ')'
 FLOW_DIRECTION = '>'
 FLOW_DELIMITER = '@'
 COMMENT = '#'
+INFINITY = 'inf'
 
 TOKEN_WHITESPACE = 'whitespace'
 TOKEN_LINES = 'lines'
@@ -25,6 +26,7 @@ TOKEN_FLOW_DELIMITER = 'flow_delimiter'
 TOKEN_PARAMS = 'params'
 TOKEN_WHOLE = 'whole'
 TOKEN_DECIMAL = 'decimal'
+TOKEN_INFINITY = 'inf'
 TOKEN_REFERENCE = 'reference'
 TOKEN_FORMULA = 'formula'
 TOKEN_OP = 'operation'
@@ -39,7 +41,9 @@ OPERATIONS = '[\/\+\-\*]'
 def lex_value(txt):
     "Lex a single value. One of: WHOLE, DECLINE, REFERENCE."
     txt = txt.strip()
-    if re.fullmatch(PARAM_WHOLE, txt):
+    if txt == INFINITY:
+        return (TOKEN_INFINITY, txt)
+    elif re.fullmatch(PARAM_WHOLE, txt):
         return (TOKEN_WHOLE, txt)
     elif re.fullmatch(PARAM_DECIMAL, txt):
         return (TOKEN_DECIMAL, txt)
@@ -176,6 +180,8 @@ def readable(token, class_str=None):
     kind = token[0]
     if kind == TOKEN_WHITESPACE:
         return WHITESPACE
+    elif kind == TOKEN_INFINITY:
+        return INFINITY
     elif kind == TOKEN_LINES:
         lines = token[1]
         return "\n".join([readable(x) for x in lines])
@@ -208,7 +214,7 @@ def main():
     lexed = lex(txt)
     for token in lexed[1]:
         print(token)
-    #print (readable(lexed))
+    print (readable(lexed))
 
 
 if __name__ == "__main__":

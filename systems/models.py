@@ -1,3 +1,11 @@
+"""
+systems.models implements the core modeling functionality.
+
+If you're looking to programmatically integrate with
+systems, you may want to consider the classes in systems.simple
+instead, which don't require you to create so many Formula
+instances for parameters.
+"""
 import math
 
 from systems.errors import IllegalSourceStock, InvalidFormula
@@ -16,6 +24,8 @@ class Formula:
     def __init__(self, definition, default=0):
         if type(definition) is str:
             definition = systems.lexer.lex_formula(definition)
+        elif type(definition) in (float, int):
+            definition = systems.lexer.lex_formula(str(definition))
 
         self.lexed = definition
         self.default = default
@@ -55,10 +65,6 @@ class Formula:
         if state is None:
             state = {}
 
-        # HACK: remove this later and fix things up
-        if type(self.lexed) in (int, float):
-            return self.lexed
-
         acc = None
         op = None
         _, tokens = self.lexed
@@ -71,6 +77,8 @@ class Formula:
                 continue
             if kind == systems.lexer.TOKEN_WHOLE:
                 val = int(val_str)
+            elif kind == systems.lexer.TOKEN_INFINITY:
+                val = float('+inf')
             elif kind  == systems.lexer.TOKEN_DECIMAL:
                 val = float(val_str)
             elif kind == systems.lexer.TOKEN_REFERENCE:
@@ -89,7 +97,9 @@ class Formula:
             elif op == '-':
                 acc = acc - val
 
-        return acc if acc else self.default
+        if acc:
+            return acc
+        return self.default
 
     def __str__(self):
         "Human readable representation of a Formula."
@@ -118,7 +128,9 @@ class Flow(object):
         self.rate.validate_source(self.source)
 
     def change(self, state, source_state, dest_state):
-        capacity = self.destination.maximum.compute(state) - dest_state
+        capacity = self.destination.maximum.compute(state)
+        if dest_state != float('+inf'):
+            capacity -= dest_state
         return self.rate.calculate(state, source_state, dest_state, capacity)
 
     def __repr__(self):

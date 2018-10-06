@@ -49,6 +49,17 @@ class TestParse(unittest.TestCase):
         self.assertEqual(5, final['b'])
         self.assertEqual(10, final['c'])
 
+    def test_parsing_infinity(self):
+        txt = """
+        pi_a(100, inf) > pi_b @ 10
+        pi_b > [pi_c] @ 5
+        """
+        model = parse.parse(txt)
+        results = model.run(rounds=5)
+        final = results[-1]
+        self.assertEqual(50, final['pi_a'])
+        self.assertEqual(30, final['pi_b'])
+
     def test_parse_invalid_int_or_float(self):
         txt = """
         c > d @ 1
@@ -66,7 +77,7 @@ class TestParse(unittest.TestCase):
         b > a(5) @ 2
         """
         with self.assertRaises(ConflictingValues) as cv:
-            m = parse.parse(txt)
+            m = parse.parse(txt, tracebacks=False)
         self.assertEqual('a', cv.exception.name)
         self.assertEqual(10, cv.exception.first.compute())
         self.assertEqual(5, cv.exception.second.compute())

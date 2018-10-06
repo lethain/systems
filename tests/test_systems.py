@@ -4,9 +4,10 @@ import unittest
 from systems.errors import IllegalSourceStock
 import systems.models
 import systems.parse
+import systems.lexer
 
 
-class TestParse(unittest.TestCase):
+class TestModels(unittest.TestCase):
     def test_stock_maximum_rate(self):
         m = systems.models.Model("Maximum")
         a = m.infinite_stock("a")
@@ -83,3 +84,39 @@ class TestParse(unittest.TestCase):
         final = results[-1]
         self.assertEqual(12, final['b'])
         self.assertEqual(6, final['c'])
+
+
+class TestFormula(unittest.TestCase):
+    def test_simple_formulas(self):
+        cases = [
+            ("0", 0),
+            ("0.5", 0.5),
+            ("100", 100),
+            ("inf", float("+inf")),
+        ]
+        for case_in, case_out in cases:
+            lexed = systems.lexer.lex_formula(case_in)
+            formula = systems.models.Formula(lexed)
+            self.assertEqual(case_out, formula.compute())
+
+    def test_reference_formulas(self):
+        state = {'a': 10, 'b': 5, 'c': 0}
+        cases = [
+            ("a", 10),
+            ("b", 5),
+            ("c", 0),
+            ("a * 2", 20),
+            ("b * 3", 15),
+            ("c * 10", 0),
+            ("2 * a", 20),
+            ("3 * b", 15),
+            ("10 * c", 0),
+            ("b * a", 50),
+            ("a * b", 50),
+            ("b * b", 25),
+            ("c * a", 0),
+        ]
+        for case_in, case_out in cases:
+            lexed = systems.lexer.lex_formula(case_in)
+            formula = systems.models.Formula(lexed)
+            self.assertEqual(case_out, formula.compute(state))

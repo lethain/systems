@@ -77,7 +77,7 @@ def parse_flow(model, src, dest, txt):
     return build_flow(model, src, dest, lexer.lex_flow(txt))
 
 
-def parse(txt):
+def parse(txt, tracebacks=True):
     m = systems.models.Model("Parsed")
     stocks = []
     by_name = {}
@@ -99,12 +99,14 @@ def parse(txt):
                 elif token[0] == lexer.TOKEN_FLOW:
                     build_flow(m, first_stock, second_stock, token)
         except DeferLineInfo as dli:
-            traceback.print_exc(file=sys.stdout)
+            if tracebacks:
+                traceback.print_exc(file=sys.stdout)
             dli.line = line
             dli.line_number = n
             raise dli
         except Exception as e:
-            traceback.print_exc(file=sys.stdout)
+            if tracebacks:
+                traceback.print_exc(file=sys.stdout)
             raise ParseError(line, n, e)
 
     return m
