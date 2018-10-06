@@ -12,7 +12,7 @@ Some stuff to consider doing:
     or gofmt). Also add some basic tests for that functionality.
 * add more tests to support more sophisticated formula, right now
     formula validation is based on a single, very basic test,
-    particularly should lock down behavior around addition
+    particularly should lock down behavior around division
 * need to build a dependency graph across variables, to figure out
     whether a given system is deterministic and reject if it isn't.
     the current handling of complex initial values is quite jank,

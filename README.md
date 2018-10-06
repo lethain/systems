@@ -64,7 +64,7 @@ To install for local development:
     git clone https://github.com/lethain/systems.git
     cd systems
     python3 -m venv ./env
-    source ./env/bin/activate    
+    source ./env/bin/activate
     python setup.py develop
 
 Run tests via:
@@ -245,9 +245,6 @@ If you are trying to install this on PyPi, the steps are roughly:
     python3 -m pip install --user --upgrade wheel
     python3 -m pip install --user --upgrade twine
     python3 setup.py sdist bdist_wheel
-    twine upload --repository-url https://upload.pypi.org/legacy/ dist/*    
+    twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
 
 That should more or less work. :)
-
-    
-

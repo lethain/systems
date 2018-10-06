@@ -16,7 +16,7 @@ class Formula:
     def __init__(self, definition, default=0):
         if type(definition) is str:
             definition = systems.lexer.lex_formula(definition)
-            
+
         self.lexed = definition
         self.default = default
         self.validate()
@@ -37,7 +37,7 @@ class Formula:
                         raise InvalidFormula(self, "operation can't be preceeded by an operation")
                 elif prev_kind not in [None, systems.lexer.TOKEN_OP]:
                     raise InvalidFormula(self, "must have an operation between values or references")
-                    
+
                 prev_kind = kind
             if prev_kind == systems.lexer.TOKEN_OP:
                 raise InvalidFormula(self, "formula cannot end with an operation")
@@ -54,16 +54,16 @@ class Formula:
     def compute(self, state=None):
         if state is None:
             state = {}
-            
+
         # HACK: remove this later and fix things up
         if type(self.lexed) in (int, float):
             return self.lexed
 
         acc = None
-        op = None        
+        op = None
         _, tokens = self.lexed
 
-        # validate() has already ensured that this is a legal formula        
+        # validate() has already ensured that this is a legal formula
         for token in tokens:
             kind, val_str = token
             if kind == systems.lexer.TOKEN_OP:
@@ -77,7 +77,7 @@ class Formula:
                 val = state[val_str]
             else:
                 Exception("This should be unreachable")
-            
+
             if acc is None:
                 acc = val
             elif op == '/':
@@ -98,7 +98,7 @@ class Formula:
         else:
             return "F(%s)" % systems.lexer.readable(self.lexed)
 
-    
+
 class Stock(object):
     def __init__(self, name, initial=None, maximum=None, show=True):
         self.name = name

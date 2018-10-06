@@ -51,7 +51,7 @@ class ReferencesInInitialFormula(FormulaError):
     "Can't have references in initial formula."
     pass
 
-    
+
 class InvalidFormula(IllegalSystemException):
     def __init__(self, formula, msg):
         self.formula = formula
@@ -88,7 +88,7 @@ class InvalidParameters(DeferLineInfo):
     def __str__(self):
         return "line %s specifies invalid parameters '%s': \"%s\"" % (
             self.line_number, self.txt, self.line)
-            
+
 
 
 class ConflictingValues(DeferLineInfo):
@@ -103,7 +103,7 @@ class ConflictingValues(DeferLineInfo):
         return "line %s initializes %s with conflict value %s (was %s): \"%s\"" % (
             self.line_number, self.name, self.second, self.first, self.line)
 
-    
+
 class UnknownFlowType(DeferLineInfo):
     "Specified flow type is unknown."
 

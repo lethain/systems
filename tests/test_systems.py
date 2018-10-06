@@ -42,7 +42,7 @@ class TestParse(unittest.TestCase):
     def test_stock_maximum_conversion(self):
         m = systems.models.Model("Maximum")
         a_initial = 10
-        
+
         a = m.stock("a", systems.models.Formula(a_initial))
         b_max = 3
         b = m.stock("b", 0, systems.models.Formula(b_max))

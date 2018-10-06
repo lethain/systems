@@ -180,12 +180,12 @@ def readable(token, class_str=None):
         lines = token[1]
         return "\n".join([readable(x) for x in lines])
     elif kind == TOKEN_FORMULA:
-        return " ".join([readable(x) for x in token[1]])    
+        return " ".join([readable(x) for x in token[1]])
     elif kind == TOKEN_LINE:
         line_tokens = token[2]
         return " ".join([readable(x) for x in line_tokens])
     elif kind in [TOKEN_FLOW_DIRECTION, TOKEN_FLOW_DELIMITER, TOKEN_OP, TOKEN_COMMENT, TOKEN_DECIMAL, TOKEN_WHOLE, TOKEN_REFERENCE]:
-        return token[1]    
+        return token[1]
     elif kind == TOKEN_PARAMS:
         params = token[1]
         if len(params) == 0:
@@ -195,7 +195,7 @@ def readable(token, class_str=None):
             return joined_params
         return "(%s)" % joined_params
     elif kind == TOKEN_STOCK_INFINITE:
-        return START_INFINITE_STOCK + token[1] + END_INFINITE_STOCK    
+        return START_INFINITE_STOCK + token[1] + END_INFINITE_STOCK
     elif kind in [TOKEN_STOCK, TOKEN_FLOW]:
         _, class_str, params = token
         return "%s%s" % (class_str, readable(params, class_str))
