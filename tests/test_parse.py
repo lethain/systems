@@ -170,7 +170,6 @@ class TestParseFlow(unittest.TestCase):
             source = m.stock("source")
             destination = m.stock("destination")
             with self.assertRaises(InvalidFormula):
-                print(['wtf', txt])
                 parse.parse_flow(m, source, destination, txt)
 
     def test_invalid_flows(self):

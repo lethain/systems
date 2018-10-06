@@ -6,7 +6,7 @@ import systems.lexer
 DEFAULT_MAXIMUM = float("+inf")
 
 
-class Formula(object):
+class Formula:
     """
     Formulas are the core unit of computation in models,
     and are also serve as the interface between lexed formula
@@ -44,7 +44,7 @@ class Formula(object):
     def references(self):
         "Return list of all references in formula."
         refs = []
-        if type(self.lexed) == list:
+        if type(self.lexed) in (list, tuple):
             for kind, val in self.lexed[1]:
                 if kind == systems.lexer.TOKEN_REFERENCE:
                     refs.append(val)
