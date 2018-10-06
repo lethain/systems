@@ -80,9 +80,6 @@ class TestParse(unittest.TestCase):
         systems.parse.parse_flow(m, b, c, "d")
 
         results = m.run(rounds=3)
-
-        print("\n" + m.render(results))
-        
         final = results[-1]
         self.assertEqual(12, final['b'])
         self.assertEqual(6, final['c'])

@@ -59,22 +59,37 @@ class Formula:
         if type(self.lexed) in (int, float):
             return self.lexed
 
-        # TODO: probably empty formulas should be rejected earlier
-        # and it shouldn't be possible to reach this conditional
-        if len(self.lexed) == 0:
-            return 0
-
-        buf = None
+        acc = None
+        op = None        
         _, tokens = self.lexed
+
+        # validate() has already ensured that this is a legal formula        
         for token in tokens:
             kind, val_str = token
-            if buf is None:
-                if kind == systems.lexer.TOKEN_WHOLE:
-                    buf = int(val_str)
-                elif kind  == systems.lexer.TOKEN_DECIMAL:
-                    buf = float(val_str)
+            if kind == systems.lexer.TOKEN_OP:
+                op = val_str
+                continue
+            if kind == systems.lexer.TOKEN_WHOLE:
+                val = int(val_str)
+            elif kind  == systems.lexer.TOKEN_DECIMAL:
+                val = float(val_str)
+            elif kind == systems.lexer.TOKEN_REFERENCE:
+                val = state[val_str]
+            else:
+                Exception("This should be unreachable")
+            
+            if acc is None:
+                acc = val
+            elif op == '/':
+                acc = acc / val
+            elif op == '*':
+                acc = acc * val
+            elif op == '+':
+                acc = acc + val
+            elif op == '-':
+                acc = acc - val
 
-        return buf if buf else self.default
+        return acc if acc else self.default
 
     def __str__(self):
         "Human readable representation of a Formula."
@@ -160,101 +175,6 @@ class Leak(Conversion):
         if not math.isnan(capacity):
             change = min(capacity, change)
         return change, change
-
-
-class DeprecatedFormula(Rate):
-    "Evaluate a formula reference multiple nodes."
-    ops = ["+", "-", "*", "/"]
-
-    def __init__(self, formula):
-        super().__init__(0)
-        self.formula = formula
-
-    def parse(self, formula):
-        "Parse formula strings, things like `a * 2` and such."
-        ops = ["+", "-", "*", "/"]
-
-        elements = []
-        acc = ""
-        for char in formula.strip():
-            if char == " ":
-                if acc:
-                    elements.append(self.element_kind(acc))
-                acc = ""
-            elif char in ops:
-                if acc:
-                    elements.append(self.element_kind(acc))
-                elements.append(self.element_kind(char))
-                acc = ""
-            else:
-                acc += char
-        if acc:
-            elements.append(self.element_kind(acc))
-
-        # we've built the elements, now to validate them
-        acc = False
-        op = None
-        for kind, value in elements:
-            if kind == "op":
-                if value not in self.ops:
-                    raise InvalidFormula(self.formula, "unknown operator '%s'" % (op,))
-
-                if acc is False:
-                    raise InvalidFormula(self.formula, "can't start formula with an operator")
-                op = value
-                continue
-
-            if acc is False:
-                acc = True
-                continue
-
-            if acc is True and op is None:
-                raise InvalidFormula(self.formula, "must have operation between values")
-
-            if op and kind != "op":
-                acc = True
-                op = None
-
-        if op is not None:
-            raise InvalidFormula(self.formula, "unused operation in formula")
-
-        return elements
-
-    def calculate(self, state, src, dest, capacity):
-        acc = None
-        op = None
-        for kind, value in self.elements:
-            if kind == "op":
-                op = value
-                continue
-
-            if kind == "variable":
-                # have to do this validation at run-time because referenced
-                # stocks may not exist when flow is first defined
-                if value not in state:
-                    raise InvalidFormula(self.formula, "referenced variable '%s' does not exist" % (value,))
-                value = state[value]
-
-            if acc is None:
-                acc = value
-                continue
-
-            # if you've reached here, then `op` is specified, `acc` is not None,
-            # and it's time to do some math
-            if op == '/':
-                acc = acc / value
-            elif op == '*':
-                acc = acc * value
-            elif op == '+':
-                acc = acc + value
-            elif op == '-':
-                acc = acc - value
-            op = None
-
-        # get into expected format to treat this as a Rate
-        self.formula = acc
-        return super().calculate(state, src, dest, capacity)
-        return 0, 0
 
 
 class State(object):
