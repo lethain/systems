@@ -12,12 +12,34 @@ class Formula(object):
     and are also serve as the interface between lexed formula
     definitions and the underlying models.
     """
-    
+
     def __init__(self, definition, default=0):
         if type(definition) is str:
             definition = systems.lexer.lex_formula(definition)
         self.lexed = definition
         self.default = default
+        self.validate()
+
+    def validate(self):
+        "Ensure formula is mathematically coherent."
+        if type(self.lexed) in (list, tuple):
+            tokens = self.lexed[1]
+            if len(tokens) == 0:
+                raise InvalidFormula(self, "formula is empty. must specify a number or a reference")
+
+            prev_kind = None
+            for kind, val in tokens:
+                if kind == systems.lexer.TOKEN_OP:
+                    if prev_kind == None:
+                        raise InvalidFormula(self, "can't start with an operation")
+                    elif prev_kind ==  systems.lexer.TOKEN_OP:
+                        raise InvalidFormula(self, "operation can't be preceeded by an operation")
+                elif prev_kind not in [None, systems.lexer.TOKEN_OP]:
+                    raise InvalidFormula(self, "must have an operation between values or references")
+                    
+                prev_kind = kind
+            if prev_kind == systems.lexer.TOKEN_OP:
+                raise InvalidFormula(self, "formula cannot end with an operation")
 
     def references(self):
         "Return list of all references in formula."
@@ -40,7 +62,7 @@ class Formula(object):
         # and it shouldn't be possible to reach this conditional
         if len(self.lexed) == 0:
             return 0
-        
+
         buf = None
         _, tokens = self.lexed
         for token in tokens:
@@ -59,12 +81,12 @@ class Formula(object):
 
 
 class Stock(object):
-    def __init__(self, name, initial, maximum=DEFAULT_MAXIMUM, show=True):
+    def __init__(self, name, initial=None, maximum=None, show=True):
         self.name = name
-        self.initial = Formula(initial, 0)
-        self.maximum = Formula(maximum, DEFAULT_MAXIMUM)
+        self.initial = Formula(initial or 0, 0)
+        self.maximum = Formula(maximum or DEFAULT_MAXIMUM, DEFAULT_MAXIMUM)
         self.show = show
-        
+
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.name)
 
@@ -88,7 +110,7 @@ class Flow(object):
 class Rate(object):
     def __init__(self, formula):
         self.formula = Formula(formula)
-    
+
     def calculate(self, state, src, dest, capacity):
         evaluated = self.formula.compute(state)
         if src - evaluated >= 0:
@@ -295,17 +317,23 @@ class Model(object):
         return f
 
     def validate(self):
-        """
         for stock in self.stocks:
             self.validate_formula(stock.initial)
             self.validate_formula(stock.maximum)
 
         for flow in self.flows:
-            pass
-        """
+            self.validate_formula(flow.rate.formula)
+
+    def validate_formula(self, formula):
+        refs = formula.references()
+        stocks = [s.name for s in self.stocks]
+        for ref in refs:
+            if ref not in stocks:
+                raise InvalidFormula(formula, "reference to non-existant stock '%s'" % ref)
+
     def run(self, rounds=10):
-        # self.validate()
-        
+        self.validate()
+
         s = State(self)
         snapshots = [s.snapshot()]
         for i in range(rounds):

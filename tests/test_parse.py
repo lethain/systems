@@ -40,7 +40,7 @@ class TestParse(unittest.TestCase):
             self.assertEqual(stock_name, stock.name)
             if stock_name in values:
                 value = values[stock_name]
-                self.assertEqual(value, stock.initial)
+                self.assertEqual(value, stock.initial.compute())
 
     def test_maximums(self):
         model = parse.parse(EXAMPLE_MAXIMUM)
@@ -83,10 +83,10 @@ class TestParse(unittest.TestCase):
         m = parse.parse(txt)
         m.run()
 
-        self.assertEqual(0, m.get_stock('a').initial)
-        self.assertEqual(2, m.get_stock('b').initial)
-        self.assertEqual(3, m.get_stock('c').initial)
-        self.assertEqual(5, m.get_stock('c').maximum)
+        self.assertEqual(0, m.get_stock('a').initial.compute())
+        self.assertEqual(2, m.get_stock('b').initial.compute())
+        self.assertEqual(3, m.get_stock('c').initial.compute())
+        self.assertEqual(5, m.get_stock('c').maximum.compute())
 
 
 class TestParseStock(unittest.TestCase):
@@ -110,8 +110,8 @@ class TestParseStock(unittest.TestCase):
             m = systems.models.Model("TestParseStock")
             stock = parse.parse_stock(m, txt)
             self.assertEqual(name, stock.name)
-            self.assertEqual(val, stock.initial({}))
-            self.assertEqual(maximum, stock.maximum({}))
+            self.assertEqual(val, stock.initial.compute())
+            self.assertEqual(maximum, stock.maximum.compute())
 
     def test_illegal_names(self):
         legal = ['A', 'a', 'Best', 'Hiring', 'a1', 'A0', 'A_1']
@@ -132,10 +132,10 @@ class TestParseFlow(unittest.TestCase):
     def test_parse_flow(self):
         opts = [
             ("1", "Rate", 1),
-            ("Rate(1)", "Rate", 1),            
+            ("Rate(1)", "Rate", 1),
             ("0.1", "Conversion", 0.1),
-            ("Conversion(0.1)", "Conversion", 0.1),            
-            ("leak(0.1)", "Leak", 0.1),            
+            ("Conversion(0.1)", "Conversion", 0.1),
+            ("leak(0.1)", "Leak", 0.1),
         ]
         for txt, kind, value in opts:
             m = systems.models.Model("TestParseStock")
@@ -143,7 +143,7 @@ class TestParseFlow(unittest.TestCase):
             destination = m.stock("destination")
             flow = parse.parse_flow(m, source, destination, txt)
             self.assertEqual(kind, flow.rate.__class__.__name__)
-            self.assertEqual(str(value), flow.rate.formula[1][0][1])
+            self.assertEqual(str(value), str(flow.rate.formula))
 
     def test_parse_formula(self):
         opts = [
@@ -170,6 +170,7 @@ class TestParseFlow(unittest.TestCase):
             source = m.stock("source")
             destination = m.stock("destination")
             with self.assertRaises(InvalidFormula):
+                print(['wtf', txt])
                 parse.parse_flow(m, source, destination, txt)
 
     def test_invalid_flows(self):
@@ -178,8 +179,8 @@ class TestParseFlow(unittest.TestCase):
         destination = m.stock("destination")
 
         opts = [
-            ("5, fake", UnknownFlowType),
-            ("0.1, fake", UnknownFlowType),
+            ("Fake(5)", UnknownFlowType),
+            ("Fake(0.1)", UnknownFlowType),
         ]
 
         for txt, exception_class in opts:

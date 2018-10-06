@@ -52,7 +52,8 @@ def lex_formula(txt):
     acc = ""
     for c in txt.strip() + NEWLINE:
         if c in (WHITESPACE, NEWLINE):
-            tokens.append(lex_value(acc))
+            if acc:
+                tokens.append(lex_value(acc))
             acc = ""
         elif re.fullmatch(OPERATIONS, c):
             if acc:

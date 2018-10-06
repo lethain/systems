@@ -60,7 +60,7 @@ def build_flow(model, src, dest, token):
     elif class_str == "rate":
         rate_class = systems.models.Rate
     elif class_str == '':
-        if len(params[0][1]) == 2 and params[0][1][0] == lexer.TOKEN_DECIMAL:
+        if len(params[0][1]) == 1 and params[0][1][0][0] == lexer.TOKEN_DECIMAL:
             rate_class = systems.models.Conversion
         else:
             rate_class = systems.models.Rate
