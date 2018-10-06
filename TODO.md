@@ -4,9 +4,15 @@ Some stuff to consider doing:
 * add support for 'inf' as infinity, which will make it possible to
     specify infinite stocks without special syntax, but also allow
     removing special-casing for handling infinity in Formula
+* make systems.simple which provides similar interface to systems.model
+    but lets you pass in floats, ints or strings instead of Formula,
+    and then make sure system.model only supports formulas
 * move systems.lexer.readable into systems.formatter and add a script
     for formatting system definitions properly (along lines of pep8
     or gofmt). Also add some basic tests for that functionality.
+* add more tests to support more sophisticated formula, right now
+    formula validation is based on a single, very basic test,
+    particularly should lock down behavior around addition
 * need to build a dependency graph across variables, to figure out
     whether a given system is deterministic and reject if it isn't.
     the current handling of complex initial values is quite jank,
