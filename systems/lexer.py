@@ -214,7 +214,6 @@ def main():
     lexed = lex(txt)
     for token in lexed[1]:
         print(token)
-    print (readable(lexed))
 
 
 if __name__ == "__main__":

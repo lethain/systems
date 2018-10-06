@@ -24,5 +24,7 @@ with open("README.md", "r") as fh:
                 scripts=[
                         "bin/systems-run",
                         "bin/systems-viz",
+                        "bin/systems-lex",
+                        "bin/systems-fmt",                        
                 ],
         )
