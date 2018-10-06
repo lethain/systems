@@ -16,6 +16,7 @@ class Formula:
     def __init__(self, definition, default=0):
         if type(definition) is str:
             definition = systems.lexer.lex_formula(definition)
+            
         self.lexed = definition
         self.default = default
         self.validate()
@@ -53,7 +54,7 @@ class Formula:
     def compute(self, state=None):
         if state is None:
             state = {}
-
+            
         # HACK: remove this later and fix things up
         if type(self.lexed) in (int, float):
             return self.lexed
@@ -77,14 +78,17 @@ class Formula:
 
     def __str__(self):
         "Human readable representation of a Formula."
-        return systems.lexer.readable(self.lexed)
+        if type(self.lexed) in (float, int):
+            return "F(%s)" % str(self.lexed)
+        else:
+            return "F(%s)" % systems.lexer.readable(self.lexed)
 
-
+    
 class Stock(object):
     def __init__(self, name, initial=None, maximum=None, show=True):
         self.name = name
-        self.initial = Formula(initial or 0, 0)
-        self.maximum = Formula(maximum or DEFAULT_MAXIMUM, DEFAULT_MAXIMUM)
+        self.initial = initial if initial else Formula(0)
+        self.maximum = maximum if maximum else Formula(float("+inf"))
         self.show = show
 
     def __repr__(self):
@@ -302,7 +306,7 @@ class Model(object):
                 return stock
 
     def infinite_stock(self, name):
-        s = Stock(name, float("+inf"), show=False)
+        s = Stock(name, Formula(float("+inf")), show=False)
         self.stocks.append(s)
         return s
 

@@ -32,7 +32,7 @@ TOKEN_COMMENT = 'comment'
 
 LEGAL_STOCK_NAME = '[a-zA-Z][a-zA-Z0-9_]*'
 PARAM_WHOLE = '\-?[0-9]+'
-PARAM_DECIMAL = '[0-9]+\.[0-1]+'
+PARAM_DECIMAL = '[0-9]+\.[0-9]+'
 OPERATIONS = '[\/\+\-\*]'
 
 
@@ -208,7 +208,7 @@ def main():
     lexed = lex(txt)
     for token in lexed[1]:
         print(token)
-    print (readable(lexed))
+    #print (readable(lexed))
 
 
 if __name__ == "__main__":

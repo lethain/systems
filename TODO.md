@@ -1,6 +1,9 @@
 
 Some stuff to consider doing:
 
+* add support for 'inf' as infinity, which will make it possible to
+    specify infinite stocks without special syntax, but also allow
+    removing special-casing for handling infinity in Formula
 * move systems.lexer.readable into systems.formatter and add a script
     for formatting system definitions properly (along lines of pep8
     or gofmt). Also add some basic tests for that functionality.

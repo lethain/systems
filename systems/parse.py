@@ -16,24 +16,25 @@ def build_stock(model, token_tuple):
     if token == lexer.TOKEN_STOCK_INFINITE:
         return model.infinite_stock(name)
 
-    default_initial = lexer.lex_formula('0')
-    initial = default_initial[:]
-    maximum = systems.models.DEFAULT_MAXIMUM
+    default_initial = systems.models.Formula(0)
+    initial = default_initial
+    default_maximum = systems.models.Formula(systems.models.DEFAULT_MAXIMUM)
+    maximum = default_maximum
 
     if len(params) > 0:
-        initial = params[0]
+        initial = systems.models.Formula(params[0])
     if len(params) > 1:
-        maximum = params[1]
+        maximum = systems.models.Formula(params[1])
 
     exists = model.get_stock(name)
     if exists:
-        if initial != default_initial:
-            if exists.initial_lex != initial and exists.initial_lex == default_initial:
+        if initial.lexed != default_initial.lexed:
+            if exists.initial.lexed != initial.lexed and exists.initial.lexed == default_initial.lexed:
                 exists.initial = initial
             else:
                 raise ConflictingValues(name, exists.initial, initial)
-        if maximum != systems.models.DEFAULT_MAXIMUM:
-            if exists.maximum != maximum and exists.maximum == systems.models.DEFAULT_MAXIMUM:
+        if maximum.lexed != default_maximum.lexed:
+            if exists.maximum.lexed != maximum.lexed and exists.maximum.lexed == default_maximum.lexed:
                 exists.maximum = maximum
             else:
                 raise ConflictingValues(name, exists.maximum, maximum)

@@ -11,7 +11,7 @@ class TestParse(unittest.TestCase):
         m = systems.models.Model("Maximum")
         a = m.infinite_stock("a")
         b_max = 3
-        b = m.stock("b", 0, b_max)
+        b = m.stock("b", systems.models.Formula(0), systems.models.Formula(b_max))
         m.flow(a, b, systems.models.Rate(1))
         results = m.run()
         for i, result in enumerate(results):
@@ -34,7 +34,7 @@ class TestParse(unittest.TestCase):
         rates = [systems.models.Rate(5), systems.models.Conversion(0.25), systems.models.Leak(0.25)]
         for rate in rates:
             m = systems.models.Model("Maximum")
-            a = m.stock("a", 100)
+            a = m.stock("a", systems.models.Formula("100"))
             b = m.infinite_stock("b")
             m.flow(a, b, rate)
             m.run(rounds=3)
@@ -42,9 +42,10 @@ class TestParse(unittest.TestCase):
     def test_stock_maximum_conversion(self):
         m = systems.models.Model("Maximum")
         a_initial = 10
-        a = m.stock("a", a_initial)
+        
+        a = m.stock("a", systems.models.Formula(a_initial))
         b_max = 3
-        b = m.stock("b", 0, b_max)
+        b = m.stock("b", 0, systems.models.Formula(b_max))
         f_rate = 0.5
 
         m.flow(a, b, systems.models.Conversion(f_rate))
@@ -59,9 +60,9 @@ class TestParse(unittest.TestCase):
     def test_stock_maximum_leak(self):
         m = systems.models.Model("Maximum")
         a_initial = 10
-        a = m.stock("a", a_initial)
+        a = m.stock("a", systems.models.Formula(a_initial))
         b_max = 3
-        b = m.stock("b", 0, b_max)
+        b = m.stock("b", systems.models.Formula(0), systems.models.Formula(b_max))
         m.flow(a, b, systems.models.Leak(0.5))
         results = m.run(rounds=2)
         final = results[-1]
@@ -73,12 +74,15 @@ class TestParse(unittest.TestCase):
         a = m.infinite_stock("a")
         b = m.stock("b")
         c = m.stock("c")
-        d = m.stock("d", 3)
+        d = m.stock("d", systems.models.Formula(3))
 
         systems.parse.parse_flow(m, a, b, "d * 2")
-        systems.parse.parse_flow(m, b, c, "d")        
+        systems.parse.parse_flow(m, b, c, "d")
 
         results = m.run(rounds=3)
+
+        print("\n" + m.render(results))
+        
         final = results[-1]
         self.assertEqual(12, final['b'])
         self.assertEqual(6, final['c'])

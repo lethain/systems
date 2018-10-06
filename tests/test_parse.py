@@ -68,8 +68,8 @@ class TestParse(unittest.TestCase):
         with self.assertRaises(ConflictingValues) as cv:
             m = parse.parse(txt)
         self.assertEqual('a', cv.exception.name)
-        self.assertEqual(10, cv.exception.first)
-        self.assertEqual(5, cv.exception.second)
+        self.assertEqual(10, cv.exception.first.compute())
+        self.assertEqual(5, cv.exception.second.compute())
 
     def test_standalone_stock(self):
         txt = """
@@ -143,7 +143,7 @@ class TestParseFlow(unittest.TestCase):
             destination = m.stock("destination")
             flow = parse.parse_flow(m, source, destination, txt)
             self.assertEqual(kind, flow.rate.__class__.__name__)
-            self.assertEqual(str(value), str(flow.rate.formula))
+            self.assertEqual(value, flow.rate.formula.compute())
 
     def test_parse_formula(self):
         opts = [
