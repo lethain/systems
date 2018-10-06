@@ -1,9 +1,6 @@
 
 Some stuff to consider doing:
 
-* move systems.lexer.readable into systems.formatter and add a script
-    for formatting system definitions properly (along lines of pep8
-    or gofmt). Also add some basic tests for that functionality.
 * make systems.simple which provides similar interface to systems.model
     but lets you pass in floats, ints or strings instead of Formula,
     and then make sure system.model only supports formulas
