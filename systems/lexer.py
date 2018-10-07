@@ -8,8 +8,8 @@ NEWLINE = "\n"
 WHITESPACE = " "
 START_INFINITE_STOCK = '['
 END_INFINITE_STOCK = ']'
-START_PARAMETER_SET = '('
-END_PARAMETER_SET = ')'
+START_PAREN = START_PARAMETER_SET = '('
+END_PAREN = END_PARAMETER_SET = ')'
 FLOW_DIRECTION = '>'
 FLOW_DELIMITER = '@'
 COMMENT = '#'
@@ -53,10 +53,21 @@ def lex_value(txt):
 
 
 def lex_formula(txt):
+    groups = []
     tokens = []
     acc = ""
     for c in txt.strip() + NEWLINE:
-        if c in (WHITESPACE, NEWLINE):
+        if c == START_PAREN:
+            groups.append(tokens)
+            tokens = []
+        elif c == END_PAREN:
+            if acc:
+                tokens.append(lex_value(acc))
+            acc = ""
+            prev_tokens = groups.pop()
+            prev_tokens.append((TOKEN_FORMULA, tokens))
+            tokens = prev_tokens
+        elif c in (WHITESPACE, NEWLINE):
             if acc:
                 tokens.append(lex_value(acc))
             acc = ""

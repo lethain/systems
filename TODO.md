@@ -2,7 +2,6 @@
 Some stuff to consider doing:
 
 * exporting a model to Excel formula
-* formulas should support parentheses and do proper operation sequencing
 * spend some more time working on the error messages after the move to
     tokenizer/lexer approach for parsing definition files
 * support a whitelist of functions being called in formulas, e.g. max, min, etc

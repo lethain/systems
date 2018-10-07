@@ -84,6 +84,8 @@ class Formula:
                 val = float(val_str)
             elif kind == systems.lexer.TOKEN_REFERENCE:
                 val = state[val_str]
+            elif kind == systems.lexer.TOKEN_FORMULA:
+                val = Formula(token).compute(state)
             else:
                 Exception("This should be unreachable")
 

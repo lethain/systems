@@ -97,6 +97,20 @@ class TestParse(unittest.TestCase):
         self.assertEqual(300, final['C'])
         self.assertEqual(30000, final['D'])
 
+    def test_parens(self):
+        txt = """
+        A(5)
+        B(10)
+        C((A+B)/2)
+        D((((A+A) * (B+B)) / A))
+        """
+        m = parse.parse(txt)
+        results = m.run()
+        final = results[0]
+        self.assertEqual(5, final['A'])
+        self.assertEqual(10, final['B'])
+        self.assertEqual(7.5, final['C'])
+        self.assertEqual(40, final['D'])
 
     def test_conflicting_stock_values(self):
         txt = """
