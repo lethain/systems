@@ -29,25 +29,6 @@ You can then evaluate your system (use `--csv` for an importable format):
     2       6       3       1
     3       4       4       2
 
-You can also export your system into [Graphviz](https://www.graphviz.org/):
-
-    cat tmp.txt | systems-viz
-
-    // Parsed
-    digraph {
-      0 [label=Start]
-      1 [label=Middle]
-      2 [label=End]
-      0 -> 1
-      1 -> 2
-    }
-
-From there you could push that output through Graphviz's
-`dot` renderer to generate a diagram:
-
-    cat tmp.txt | systems-viz | dot -Tpng -o tmp.png
-    open tmp.png
-
 See [the tutorial](./docs/tutorial.md) for more detailed starting information.
 
 ## Jupyter notebooks
@@ -90,7 +71,7 @@ systems/
     2       25              12      0       0       5               0
     3       25              12      6       0       5               0
 
-`systems-viz` is used to visualize models:
+`systems-viz` is used to visualize models into [Graphviz](https://www.graphviz.org/):
 
     $ cat examples/hiring.txt | systems-viz
     // Parsed
