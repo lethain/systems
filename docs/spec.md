@@ -39,11 +39,11 @@ and instead you'd use the special syntax for infinite flows:
 
 This `InfiniteFlow` would have initial and maximum values of infinity.
 
-Without going too far into the details, maximum values can be specified using any
-legal formula, more on formulas below, but currently initial values must be either a number:
+Without going too far into the details, initial and maximums can be specified using any
+legal formula, more on formulas below:
 
     Managers(2)
-    Engineers(8, Managers * 2)
+    Engineers(Managers * 4, Managers * 8)
 
 In many cases, though, you'll end up specifying your stocks inline in your
 flows, as opposed to doing them on their own lines, but the syntax
@@ -126,32 +126,16 @@ a `leak`, then the value would be `8`.
 
 ## Formulas
 
-Any flow value and maximum value can be a formula (initial values currently
-reject references because we need to do some work to support detecting circular
-dependencies in formula references, but that is definitely a solvable problem):
+Any flow value, initial value and maximum value can be a formula:
 
     Recruiters(3)
-    Engineers(0, Managers * 8)
+    Engineers(Managers * 4, Managers * 8)
     [Candidates] > Engineers @ Recruiters * 6
     [Candidates] > Managers  @ Recruiters * 3
 
-The above system shows that `Engineers` has a maximum value of
-`Managers * 8` and then shows that both `Engineers` and `Managers`
+The above system shows that `Engineers` has an initial value of `Managers * 4`,
+a maximum value of `Managers * 8` and then shows that both `Engineers` and `Managers`
 grow at multiples of the value of the `Recruiters` stock.
 
 This is also a good example of using the `Recruiters` stock as
 a variable, as it doesn't' actually change over time.
-
-## Error messages
-
-The parser will do its best to give you a useful error message.
-For example, if you're missing delimiters:
-
-    cat examples/no_delim.txt | systems-run
-    line 1 is missing delimiter '>': "[a] < b @ 25"
-
-At worst, it will give you the line number and line that is
-creating an issue:
-
-    cat examples/invalid_flow.txt | systems-run
-    line 1 could not be parsed: "a > b @ 0..2"

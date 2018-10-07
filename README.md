@@ -86,6 +86,19 @@ Visualize a model into `dot` for Graphviz:
 
     cat examples/hiring.txt | systems-viz | dot
 
+## Error messages
+
+The parser will do its best to give you a useful error message.
+For example, if you're missing delimiters:
+
+    cat examples/no_delim.txt | systems-run
+    line 1 is missing delimiter '>': "[a] < b @ 25"
+
+At worst, it will give you the line number and line that is
+creating an issue:
+
+    cat examples/invalid_flow.txt | systems-run
+    line 1 could not be parsed: "a > b @ 0..2"
 
 ## Uploading distribution
 

@@ -1,11 +1,6 @@
 
 Some stuff to consider doing:
 
-* need to build a dependency graph across variables, to figure out
-    whether a given system is deterministic and reject if it isn't.
-    the current handling of complex initial values is quite jank,
-    maybe jank enough that we should explicitly reject them until
-    this work is done
 * exporting a model to Excel formula    
 * formulas should support parentheses and do proper operation sequencing
 * support a whitelist of functions being called in formulas, e.g. max, min, etc

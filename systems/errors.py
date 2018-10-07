@@ -52,6 +52,15 @@ class ReferencesInInitialFormula(FormulaError):
     pass
 
 
+class CircularReferences(IllegalSystemException):
+    def __init__(self, cycle, graph):
+        self.cycle = cycle
+        self.graph = graph
+
+    def __str__(self):
+        return "found cycle '%s' in references '%s'" % (self.cycle, self.graph)
+
+
 class InvalidFormula(IllegalSystemException):
     def __init__(self, formula, msg):
         self.formula = formula

@@ -10,6 +10,7 @@ import math
 
 from systems.errors import IllegalSourceStock, InvalidFormula
 import systems.lexer
+import systems.algos
 
 DEFAULT_MAXIMUM = float("+inf")
 
@@ -194,13 +195,10 @@ class State(object):
         self.model = model
         self.state = {}
         for stock in self.model.stocks:
-            refs = stock.initial.references()
-            # TODO: add support for references in initial formula,
-            # but for now let's hard reject to avoid it faily in
-            # unexpected ways
-            if len(refs) > 0:
-                raise systems.errors.ReferencesInInitialFormula(stock.initial)
-            self.state[stock.name] = stock.initial.compute()
+            if stock.name not in self.model.initial_path:
+                self.state[stock.name] = stock.initial.compute(self.state)
+        for name in self.model.initial_path:
+            self.state[name] = self.model.get_stock(name).initial.compute(self.state)
 
     def advance(self):
         deferred = []
@@ -231,6 +229,10 @@ class Model(object):
         self.name = name
         self.stocks = []
         self.flows = []
+        # initial_path is updated in self.validate_initial_cycles(),
+        # and is used to identify the sequence to build up the initial
+        # state file
+        self.initial_path = []
 
     def get_stock(self, name):
         for stock in self.stocks:
@@ -253,17 +255,44 @@ class Model(object):
         return f
 
     def validate(self):
+        self.validate_existing_stocks()
+        self.validate_initial_cycles()
+
+    def validate_initial_cycles(self):
+        "References in initial values must not have cycles."
+        inward_refs = {}
+        outward_refs = {}
         for stock in self.stocks:
-            self.validate_formula(stock.initial)
-            self.validate_formula(stock.maximum)
+            inward_refs[stock.name] = []
+            outward_refs[stock.name] = []
 
-        for flow in self.flows:
-            self.validate_formula(flow.rate.formula)
+        for stock in self.stocks:
+            refs = stock.initial.references()
+            for ref in refs:
+                outward_refs[stock.name].append(ref)
+                inward_refs[ref].append(stock.name)
 
-    def validate_formula(self, formula):
-        refs = formula.references()
+        has_cycle, cycles, initial_path = systems.algos.find_cycles(inward_refs, outward_refs)
+        if has_cycle:
+            raise systems.errors.CircularReferences(cycles, outward_refs)
+        self.initial_path = initial_path
+
+    def validate_existing_stocks(self):
+        """
+        All references should point to existing stocks.
+
+        We could implicitly create stocks when they're referenced,
+        but usually these are typos, so I think the least surprising
+        behavior here is to error as opposed to implicitly create.
+        """
         stocks = [s.name for s in self.stocks]
-        for ref in refs:
+        refs = []
+        for stock in self.stocks:
+            refs += [(stock.maximum, x) for x in stock.maximum.references()]
+            refs += [(stock.initial, x) for x in stock.initial.references()]
+        for flow in self.flows:
+            refs += [(flow.rate.formula, x) for x in flow.rate.formula.references()]
+        for formula, ref in refs:
             if ref not in stocks:
                 raise InvalidFormula(formula, "reference to non-existant stock '%s'" % ref)
 
