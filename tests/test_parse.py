@@ -71,6 +71,17 @@ class TestParse(unittest.TestCase):
             m = parse.parse(txt)
             m.run()
 
+    def test_circular_formula_dependency(self):
+        txt = """
+        A(100)
+        B(A)
+        C(B*3)
+        D(C*B)
+        """
+        with self.assertRaises(systems.errors.ReferencesInInitialFormula):
+            m = parse.parse(txt, tracebacks=False)
+            m.run()
+
     def test_conflicting_stock_values(self):
         txt = """
         a(10) > b @ 1

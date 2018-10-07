@@ -199,7 +199,7 @@ class State(object):
             # but for now let's hard reject to avoid it faily in
             # unexpected ways
             if len(refs) > 0:
-                raise ReferencesInInitialFormula(stock.initial)
+                raise systems.errors.ReferencesInInitialFormula(stock.initial)
             self.state[stock.name] = stock.initial.compute()
 
     def advance(self):
