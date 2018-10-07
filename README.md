@@ -78,13 +78,67 @@ Please open an Github issue if you run into any problems!
 
 ## Using the command line tools
 
-Run a model in a file:
+There are four command line tools that you'll use when creating and debugging
+systems/
 
-    cat tmp.txt | systems-run -r 3
+`systems-run` is used to run models:
 
-Visualize a model into `dot` for Graphviz:
+    $ cat examples/hiring.txt | systems-run -r 3
+    PhoneScreens    Onsites Offers  Hires   Employees       Departures
+    0       0               0       0       0       5               0
+    1       25              0       0       0       5               0
+    2       25              12      0       0       5               0
+    3       25              12      6       0       5               0
 
-    cat examples/hiring.txt | systems-viz | dot
+`systems-viz` is used to visualize models:
+
+    $ cat examples/hiring.txt | systems-viz
+    // Parsed
+    digraph {
+      rankdir=LR
+      0 [label=Candidates]
+      1 [label=PhoneScreens]
+      // etc, etc, some other stuff
+    }
+
+Typically you'll pipe the output of `systems-viz` into `dot`, for example
+
+    $ cat examples/hiring.txt | systems-viz | dot -Tpng -o tmp.png
+
+`systems-format` reads in a model, tokenizes it and formats the tokens
+into properly formatted results. This is similar to `gofmt`, and could
+be used for ensuring a consistent house formatting style for your diagrams.
+(It was primarily implemented to support generating human readable error
+messages instead of surfacing the tokens to humans when errors arise.)
+
+    $ cat examples/hiring.txt | systems-fmt
+    [Candidates] > PhoneScreens @ 25
+    PhoneScreens > Onsites @ 0.5
+    # etc etc
+
+`systems-lex` generates the tokens for a given system file.
+This is typically most useful when you're extending the lexer
+to support new types of functionality, but can also be useful
+for other kinds of debugging:
+
+    $ cat examples/hiring.txt | systems-lex
+    ('lines',
+       [('line',
+         1,
+         [('comment', '# wrap with [] to indicate an infinite stock that')]),
+        ('line', 2, [('comment', "# isn't included in each table")]),
+	('line', 3, [('comment', '# integers are implicitly steady rates')]),
+	('line',
+	 4,
+         [('infinite_stock', 'Candidates', ('params', [])),
+	  ('flow_direction', '>'),
+          ('stock', 'PhoneScreens', ('params', ())),
+          ('flow_delimiter', '@'),
+          ('flow', '', ('params', (('formula', [('whole', '25')]),)))]),
+	...
+      ]
+    )
+
 
 ## Error messages
 

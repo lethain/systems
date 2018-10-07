@@ -1,5 +1,6 @@
 import re
 import sys
+import pprint
 import systems.errors
 
 
@@ -126,7 +127,7 @@ def lex(txt):
     char_buff = txt[0]
     parsing = TOKEN_STOCK
 
-    line_num = 1
+    line_num = 0
     for c in txt[1:]:
         prev = char_buff[-1]
         if c == COMMENT and not line:
@@ -212,8 +213,7 @@ def readable(token, class_str=None):
 def main():
     txt = sys.stdin.read()
     lexed = lex(txt)
-    for token in lexed[1]:
-        print(token)
+    pprint.pprint(lexed)
 
 
 if __name__ == "__main__":
