@@ -55,6 +55,10 @@ Run tests via:
 
     python3 -m unittest tests/test_*.py
 
+Or run a single test via:
+
+    python3 tests/test_parse.py TestParse.test_parse_complex_formula
+
 Please open an Github issue if you run into any problems!
 
 ## Using the command line tools

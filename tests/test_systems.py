@@ -70,6 +70,29 @@ class TestModels(unittest.TestCase):
         self.assertEqual(b_max, final['b'])
         self.assertEqual(a_initial - b_max, final['a'])
 
+    def test_stock_minimums(self):
+        "Stocks should never dip below their minimum value."
+        m = systems.models.Model("Minimum")
+        a = m.stock("a", systems.models.Formula(2))
+        b = m.stock("b", systems.models.Formula(0))
+        m.flow(a,b, systems.models.Rate(1))
+        results = m.run(rounds=5)
+        final = results[-1]
+        self.assertEqual(0, final['a'])
+        self.assertEqual(2, final['b'])
+
+    def test_stock_negative_flows(self):
+        "Stocks should never dip below their minimum value."
+        m = systems.models.Model("Minimum")
+        c = m.stock("c", systems.models.Formula(2))
+        a = m.stock("a", systems.models.Formula(5))
+        b = m.stock("b", systems.models.Formula(0))
+        m.flow(a,b, systems.models.Rate("c"))
+        results = m.run(rounds=5)
+        final = results[-1]
+        self.assertEqual(1, final['a'])
+        self.assertEqual(4, final['b'])
+
     def test_formula_rate(self):
         m = systems.models.Model("Maximum")
         a = m.infinite_stock("a")

@@ -148,8 +148,8 @@ class Rate(object):
     def calculate(self, state, src, dest, capacity):
         evaluated = self.formula.compute(state)
         if src - evaluated >= 0:
-            change = evaluated if src - evaluated > 0 else src
-            change = min(capacity, change)
+            change = evaluated if src - evaluated >= 0 else src
+            change = min(capacity, max(0, change))
             return change, change
         return 0, 0
 

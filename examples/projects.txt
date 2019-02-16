@@ -1,0 +1,4 @@
+[Hires] > Developers @ 1
+[Ideas] > Projects   @ Developers / (Projects+1)
+Projects > Started   @ Developers - (Started+1)
+Started > Finished   @ Developers

@@ -45,13 +45,18 @@ class TestParse(unittest.TestCase):
     def test_parse_complex_formula(self):
         spec = """[Hires] > Developers @ 1
         [Ideas] > Projects   @ Developers / (Projects+1)
-        Projects > Started   @ Developers - Started
+        Projects > Started   @ Developers - (Started+1)
         Started > Finished   @ Developers"""
         model = parse.parse(spec)
 
         names = ['Hires', 'Developers', 'Ideas', 'Projects', 'Started', 'Finished']
         for name in names:
             self.assertEquals(name, model.get_stock(name).name)
+
+        results = model.run(rounds=10)
+        for row in results:
+            for val in row.values():
+                self.assertLessEqual(0, val)
 
     def test_maximums(self):
         model = parse.parse(EXAMPLE_MAXIMUM)
