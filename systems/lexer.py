@@ -100,6 +100,7 @@ def lex_caller(token, txt):
 
     name = match.group(0)
     rest = txt[match.end(0):]
+
     if rest != "" and not (rest.startswith(START_PARAMETER_SET) and rest.endswith(END_PARAMETER_SET)):
         raise systems.errors.IllegalStockName(txt, LEGAL_STOCK_NAME)
 
@@ -121,8 +122,9 @@ def lex_flow(txt):
     #txt = '(' + txt.strip() + ')'
 
     txt = txt.strip()
-    if txt.endswith(END_PARAMETER_SET):
 
+    match = re.match(LEGAL_STOCK_NAME, txt)
+    if match and txt[len(match.group(0)):].startswith(START_PARAMETER_SET) and txt.endswith(END_PARAMETER_SET):
         return lex_caller(TOKEN_FLOW, txt)
     else:
         return (TOKEN_FLOW, '', lex_parameters('('+txt+')'))
