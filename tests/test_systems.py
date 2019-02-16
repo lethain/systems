@@ -90,8 +90,20 @@ class TestModels(unittest.TestCase):
         m.flow(a,b, systems.models.Rate("c"))
         results = m.run(rounds=5)
         final = results[-1]
-        self.assertEqual(1, final['a'])
-        self.assertEqual(4, final['b'])
+        self.assertEqual(0, final['a'])
+        self.assertEqual(5, final['b'])
+
+    def test_partial_fulfillment_rate(self):
+        m = systems.models.Model("Partial")
+        a = m.stock("a", systems.models.Formula(5))
+        b = m.stock("b", systems.models.Formula(0))
+
+        systems.parse.parse_flow(m, a, b, "10")
+
+        results = m.run(rounds=3)
+        final = results[-1]
+        self.assertEqual(0, final['a'])
+        self.assertEqual(5, final['b'])
 
     def test_formula_rate(self):
         m = systems.models.Model("Maximum")
@@ -143,3 +155,7 @@ class TestFormula(unittest.TestCase):
             lexed = systems.lexer.lex_formula(case_in)
             formula = systems.models.Formula(lexed)
             self.assertEqual(case_out, formula.compute(state))
+
+
+if __name__ == "__main__":
+    unittest.main()
