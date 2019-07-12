@@ -6,7 +6,7 @@
 
 
 Installation directions are below, and then get started by [working through the tutorial](./docs/tutorial.md)
-or reading through the [Jupyter notebook example](../notebooks/hiring.ipynb) example.
+or reading through the [Jupyter notebook example](./notebooks/hiring.ipynb) example.
 
 For a more in-depth look at the system syntax, please read [the syntax specification](./docs/spec.md).
 
