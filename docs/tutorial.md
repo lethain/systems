@@ -1,4 +1,3 @@
-
 # Tutorial
 
 Please follow the [installation instructions](../) before continuing with these steps.
@@ -39,9 +38,12 @@ Then you could run the simulation for 10 rounds:
     9       15              45              22      11      5       18              1
     10      15              45              22      11      5       22              1
 
+Sometimes it may be clearer to round the outputs for display:
+
+    systems-run --round-to 2
+
 You can also get the output as CSV:
 
     cat examples/links.txt | systems-run -r10 --csv
 
 Which you could... load into a spreadsheet or something to graph!
-
