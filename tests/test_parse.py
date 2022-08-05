@@ -128,6 +128,16 @@ class TestParse(unittest.TestCase):
         self.assertEqual(7.5, final['C'])
         self.assertEqual(40, final['D'])
 
+    def test_missing_parens(self):
+        "There is a missing paren in the rate definition"
+        txt = """
+        [A]
+        A > B @ Rate(1 * (1 + (1 * 1))
+        """
+        with self.assertRaises(systems.errors.MismatchedParens):
+            m = parse.parse(txt)
+            results = m.run()
+
     def test_conflicting_stock_values(self):
         txt = """
         a(10) > b @ 1
