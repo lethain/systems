@@ -51,7 +51,7 @@ class TestParse(unittest.TestCase):
 
         names = ['Hires', 'Developers', 'Ideas', 'Projects', 'Started', 'Finished']
         for name in names:
-            self.assertEquals(name, model.get_stock(name).name)
+            self.assertEqual(name, model.get_stock(name).name)
 
         results = model.run(rounds=10)
         for row in results:
