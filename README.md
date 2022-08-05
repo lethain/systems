@@ -1,4 +1,3 @@
-
 # Systems
 
 `systems` is a set of tools for describing, running and visualizing
@@ -67,6 +66,17 @@ There are four command line tools that you'll use when creating and debugging
 systems/
 
 `systems-run` is used to run models:
+
+    $ systems-run --help
+    usage: parse.py [-h] [-r ROUNDS] [--csv] [-R ROUND_TO]
+
+    options:
+      -h, --help            show this help message and exit
+      -r ROUNDS, --rounds ROUNDS
+                            number of rounds to run evaluation
+      --csv
+      -R ROUND_TO, --round-to ROUND_TO
+                            number of digits to round outputs to
 
     $ cat examples/hiring.txt | systems-run -r 3
     PhoneScreens    Onsites Offers  Hires   Employees       Departures
