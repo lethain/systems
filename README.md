@@ -31,11 +31,6 @@ You can then evaluate your system (use `--csv` for an importable format):
 
 See [the tutorial](./docs/tutorial.md) for more detailed starting information.
 
-## Jupyter notebooks
-
-Likely the easiest way to iterate on a model is within a Jupyter notebook.
-See an [example notebook here](./notebooks/hiring.ipynb).
-[Read this blog post for more installation details](https://lethain.com/systems-jupyter-notebook/).
 
 ## Installation
 
@@ -60,6 +55,20 @@ Or run a single test via:
     python3 tests/test_parse.py TestParse.test_parse_complex_formula
 
 Please open an Github issue if you run into any problems!
+
+## Jupyter notebooks
+
+Likely the easiest way to iterate on a model is within a Jupyter notebook.
+See an [example notebook here](./notebooks/hiring.ipynb).
+To install, follow the installation steps above, and followed by:
+
+    # install graphviz
+    brew install graphviz
+
+    # install these additional python packages
+    pip install jupyter pandas matplotlib
+
+
 
 ## Using the command line tools
 
