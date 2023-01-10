@@ -47,6 +47,10 @@ class FormulaError(IllegalSystemException):
         return "%s for formula '%s'" % (self.__class__.__name__, self.formula)
 
 
+class MismatchedParens(FormulaError):
+    pass
+
+
 class CircularReferences(IllegalSystemException):
     def __init__(self, cycle, graph):
         self.cycle = cycle

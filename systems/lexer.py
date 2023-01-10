@@ -67,7 +67,13 @@ def lex_formula(txt):
             prev_tokens = groups.pop()
             prev_tokens.append((TOKEN_FORMULA, tokens))
             tokens = prev_tokens
-        elif c in (WHITESPACE, NEWLINE):
+        elif c == WHITESPACE:
+            if acc:
+                tokens.append(lex_value(acc))
+            acc = ""
+        elif c == NEWLINE:
+            if groups:
+                raise systems.errors.MismatchedParens(txt)
             if acc:
                 tokens.append(lex_value(acc))
             acc = ""
