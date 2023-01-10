@@ -1,7 +1,7 @@
 
 # Tutorial
 
-Please follow the [installation instructions](../) before continuing with these steps.
+Please follow the [installation instructions](../README.md#installation) before continuing with these steps.
 Also see the [Jupyter notebook example](../notebooks/hiring.ipynb) for another example.
 
 ---
