@@ -325,7 +325,7 @@ class Model(object):
         rows += ["</tbody>", "</table>"]
         return "\n".join(rows)
 
-    def render(self, results, sep='\t', pad=True):
+    def render(self, results, sep='\t', pad=True, round_to=None):
         "Render results to string from Model run."
         lines = []
 
@@ -338,7 +338,10 @@ class Model(object):
         for i, snapshot in enumerate(results):
             row = "%s" % i
             for j, col in enumerate(col_stocks):
-                num = str(snapshot[col.name])
+                value = snapshot[col.name]
+                if round_to:
+                    value = round(value, round_to)
+                num = str(value)
                 if pad:
                     num = num.ljust(col_size[j])
 

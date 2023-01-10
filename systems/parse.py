@@ -121,6 +121,11 @@ def main():
         help="number of rounds to run evaluation",
         default=10)
     p.add_argument('--csv', action='store_true', default=False)
+    p.add_argument(
+        '-R',
+        '--round-to',
+        type=int,
+        help="number of digits to round outputs to")
     args = p.parse_args()
 
     txt = sys.stdin.read()
@@ -136,6 +141,8 @@ def main():
     if args.csv:
         kwargs['sep'] = ','
         kwargs['pad'] = False
+    if args.round_to:
+        kwargs['round_to'] = args.round_to
     print(model.render(results, **kwargs))
 
 
