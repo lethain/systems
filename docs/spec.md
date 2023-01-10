@@ -137,5 +137,8 @@ The above system shows that `Engineers` has an initial value of `Managers * 4`,
 a maximum value of `Managers * 8` and then shows that both `Engineers` and `Managers`
 grow at multiples of the value of the `Recruiters` stock.
 
-This is also a good example of using the `Recruiters` stock as
-a variable, as it doesn't' actually change over time.
+This is also a good example of using the `Recruiters` stock as a
+variable, as it doesn't actually change over time. (Although note that
+this pattern can only be used for constants: if you specify a formula
+that will only be used for the initial value, which is probably not
+what you want.)
