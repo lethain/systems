@@ -49,6 +49,7 @@ For example:
     
     model, results = results_for_spec(spec, 10)
     print(results)
+    # outputs: [{'Start': 10, 'Middle': 0, 'End': 0}, {'Start': 8, 'Middle': 2, 'End': 0}, ...]
 
 This pattern is particularly useful when running from inside of a Jupyter Notebook,
 such as the examples in [`lethain/eng-strategy-models`](https://github.com/lethain/eng-strategy-models).
