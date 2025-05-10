@@ -31,6 +31,28 @@ You can then evaluate your system (use `--csv` for an importable format):
 
 See [the tutorial](./docs/tutorial.md) for more detailed starting information.
 
+## Running in code
+
+It's also possible to write code to run your model, rather than rely on the command line tool.
+For example:
+
+    from systems.parse import parse
+
+    def results_for_spec(spec, rounds):
+        model = parse(spec)
+        results = model.run(rounds=rounds)
+        return model, results
+
+    spec = """Start(10)
+    Start  > Middle @ 2
+    Middle > End"""
+    
+    model, results = results_for_spec(spec, 10)
+    print(results)
+
+This pattern is particularly useful when running from inside of a Jupyter Notebook,
+such as the examples in [`lethain/eng-strategy-models`](https://github.com/lethain/eng-strategy-models).
+
 
 ## Installation
 
