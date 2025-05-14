@@ -51,7 +51,7 @@ class TestParse(unittest.TestCase):
 
         names = ['Hires', 'Developers', 'Ideas', 'Projects', 'Started', 'Finished']
         for name in names:
-            self.assertEquals(name, model.get_stock(name).name)
+            self.assertEqual(name, model.get_stock(name).name)
 
         results = model.run(rounds=10)
         for row in results:
@@ -127,6 +127,16 @@ class TestParse(unittest.TestCase):
         self.assertEqual(10, final['B'])
         self.assertEqual(7.5, final['C'])
         self.assertEqual(40, final['D'])
+
+    def test_missing_parens(self):
+        "There is a missing paren in the rate definition"
+        txt = """
+        [A]
+        A > B @ Rate(1 * (1 + (1 * 1))
+        """
+        with self.assertRaises(systems.errors.MismatchedParens):
+            m = parse.parse(txt)
+            results = m.run()
 
     def test_conflicting_stock_values(self):
         txt = """
